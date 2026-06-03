@@ -1,0 +1,18 @@
+# macOS / Python
+.DS_Store
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Lokalna konfiguracja Claude Code (uprawnienia) — nie publikować
+.claude/settings.local.json
+
+# Lokalne materiały źródłowe — NIE publikować (prawa autorskie / własne dokumenty)
+zrodla/redemptor*
+zrodla/*kaszubski*
+zrodla/_*.docx.txt
+*.docx
+
+# Wygenerowane śpiewniki są regenerowalne: `python3 zrodla/pdf_full.py` itd.
+# Odkomentuj, jeśli nie chcesz trzymać PDF-ów w repo (np. gdy buduje je CI / GitHub Pages):
+# *.pdf
