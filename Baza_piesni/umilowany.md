@@ -1,4 +1,4 @@
-# Uwielbiamy Cię
+# Umiłowany
 
 - **Przeznaczenie:** uwielbienie / dziękczynienie / adoracja
 - **Tonacja:** E

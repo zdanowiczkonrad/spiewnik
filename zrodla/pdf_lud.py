@@ -3,7 +3,7 @@
 import os
 from fpdf import FPDF
 from fpdf.enums import XPos, YPos
-from common import INK, GRY, HAIR, fold, strip_chords, load_by_title, add_fonts
+from common import INK, GRY, HAIR, fold, strip_chords, load_by_title, add_fonts, BUILD_VERSION
 from plan_data import SELECTED, EVENT
 
 LGY=(170,170,170)   # „dla ludu" ma odrobinę ciemniejszą szarość niż reszta generatorów
@@ -30,7 +30,11 @@ class PDF(FPDF):
     def footer(self):
         if not self.chrome or self.page_no()==1: return
         self.set_y(-11); self.set_font("play","",8.5); self.set_text_color(*GRY)
-        self.cell(0,6,str(self.page_no()),align="C"); self.set_text_color(*INK)
+        self.cell(0,6,str(self.page_no()),align="C")
+        if BUILD_VERSION:
+            self.set_xy(self.l_margin,-11); self.set_font("sans","",6.5); self.set_text_color(*LGY)
+            self.set_char_spacing(0.4); self.cell(0,6,BUILD_VERSION); self.set_char_spacing(0)
+        self.set_text_color(*INK)
 
 pdf=PDF(format="A4"); pdf.set_margins(14,16,14); pdf.set_auto_page_break(False)
 add_fonts(pdf)

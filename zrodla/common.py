@@ -5,14 +5,19 @@ Tu mieszka wszystko, co dzielą `pdf.py`, `pdf_full.py`, `pdf_plain.py`, `pdf_lu
 ścieżki, paleta, parsowanie bazy `Baza_piesni/*.md`, rozpoznawanie i usuwanie chwytów,
 formatowanie tonacji, ładowanie fontów oraz bazowa klasa PDF (nagłówek/stopka).
 Baza `.md` jest źródłem prawdy — ten moduł niczego nie zapisuje."""
-import os, re, glob, unicodedata
+import os, re, glob, unicodedata, subprocess
 from fpdf import FPDF
 
 # --- ścieżki (wyliczane z położenia pliku — bez zaszytych ścieżek absolutnych) ---
-ROOT  = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-SRC   = os.path.join(ROOT, "zrodla")
-DB    = os.path.join(ROOT, "Baza_piesni")
-FONTS = os.path.join(SRC, "fonts")
+ROOT   = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+SRC    = os.path.join(ROOT, "zrodla")
+DB     = os.path.join(ROOT, "Baza_piesni")
+FONTS  = os.path.join(SRC, "fonts")
+ASSETS = os.path.join(SRC, "assets")
+
+# --- publikacja (GitHub Pages) ---
+SITE_URL = "https://zdanowicz.dev/spiewnik/"          # adres żywej strony — cel kodu QR na okładkach
+QR_PATH  = os.path.join(ASSETS, "qr-spiewnik.png")    # statyczny QR (regeneracja: zrodla/make_qr.py)
 
 # --- paleta (czarno-biały + szarości) ---
 INK=(17,17,17); GRY=(120,120,120); LGY=(175,175,175); HAIR=(205,205,205)
@@ -46,13 +51,17 @@ def is_chord(tok):
     core=re.sub(r"[()\[\]]","",t).strip(".,;")             # zdejmij nawiasy (G(7)→G7, (h)→h) i interpunkcję
     return bool(core) and bool(re.search(r"[A-Ha-h]",core)) and bool(_CLUSTER.fullmatch(core))
 
+def is_section_label(tok):
+    """Token będący nazwą sekcji w linii-legendzie chwytów („zwrotka:", „ref.:", „bridge:")."""
+    return bool(_LABEL.match(tok.strip()))
+
 def chord_run(toks, ns):
     """Indeksy tokenów-akordów do pokolorowania/usunięcia.
     Domyślnie: KOŃCOWY ciąg tokenów-akordów (chwyty dopisane na końcu wersu).
     Wyjątek — linia-legenda (wszystkie nie-akordy to etykiety „zwrotka:"/„ref.:"):
     kolorujemy wszystkie akordy w linii."""
     chordset={i for i in ns if is_chord(toks[i])}
-    if chordset and all(_LABEL.match(toks[i]) for i in ns if i not in chordset):
+    if chordset and all(is_section_label(toks[i]) for i in ns if i not in chordset):
         return chordset
     run=set()
     for i in reversed(ns):
@@ -129,6 +138,18 @@ def load_all(db=DB):
     return [parse_md(p) for p in sorted(glob.glob(os.path.join(db,"*.md")))
             if not os.path.basename(p).startswith("_")]
 
+# --- wersja buildu (auto-stempel z gita: data + krótki hash ostatniego commita) ---
+def build_version():
+    """„RRRR-MM-DD · hash" ostatniego commita — na okładkę/stopkę i stronę web.
+    Gdy git/repo niedostępne (np. po pobraniu ZIP-a) → pusty string (stempel pomijany)."""
+    try:
+        r=subprocess.run(["git","-C",ROOT,"log","-1","--format=%cd · %h","--date=format:%Y-%m-%d"],
+                         capture_output=True, text=True, timeout=3)
+        return r.stdout.strip() if r.returncode==0 else ""
+    except Exception:
+        return ""
+BUILD_VERSION=build_version()
+
 # --- fonty (wszystkie używane kroje; nadmiarowe rejestracje są nieszkodliwe) ---
 def add_fonts(pdf):
     pdf.add_font("play","",  os.path.join(FONTS,"PlayfairDisplay-Regular.ttf"))
@@ -139,12 +160,26 @@ def add_fonts(pdf):
     pdf.add_font("mono","",  os.path.join(FONTS,"Cousine-Regular.ttf"))
     pdf.add_font("mono","B", os.path.join(FONTS,"Cousine-Bold.ttf"))
 
+# --- kod QR do strony (na okładkę): osadza statyczny PNG, gdy istnieje ---
+def draw_site_qr(pdf, cx, y, size, caption="ŚPIEWNIK ONLINE · ZDANOWICZ.DEV/SPIEWNIK"):
+    """Rysuje QR wyśrodkowany w (cx) od góry y, bok=size. Zwraca y pod podpisem.
+    Gdy brak assetu (qr-spiewnik.png) — nic nie rysuje (graceful)."""
+    if not os.path.exists(QR_PATH): return y
+    pdf.image(QR_PATH, x=cx-size/2, y=y, w=size, h=size)
+    yb=y+size
+    if caption:
+        pdf.set_xy(0, yb+1.6); pdf.set_font("sans","",6.8); pdf.set_text_color(*GRY); pdf.set_char_spacing(1.1)
+        pdf.cell(pdf.w, 4, caption, align="C"); pdf.set_char_spacing(0); pdf.set_text_color(*INK)
+        yb+=5.6
+    return yb
+
 # --- bazowa klasa PDF: nagłówek/stopka w stylu śpiewnika A4/A5 ---
 # (left_label/right_label nadpisuje każdy generator; pdf_lud.py ma własny, kompaktowy nagłówek)
 class SongbookPDF(FPDF):
     chrome=False
     left_label="ŚPIEWNIK"
     right_label=""
+    version=BUILD_VERSION
     def header(self):
         if not self.chrome or self.page_no()==1:
             self.set_y(self.t_margin); return
@@ -158,4 +193,8 @@ class SongbookPDF(FPDF):
     def footer(self):
         if not self.chrome or self.page_no()==1: return
         self.set_y(-12); self.set_font("play","",9); self.set_text_color(*GRY)
-        self.cell(0,6,str(self.page_no()),align="C"); self.set_text_color(*INK)
+        self.cell(0,6,str(self.page_no()),align="C")
+        if self.version:                                   # dyskretny stempel wersji (lewy dół) — by poznać aktualność luźnej kartki
+            self.set_xy(self.l_margin,-12); self.set_font("sans","",6.5); self.set_text_color(*LGY)
+            self.set_char_spacing(0.4); self.cell(0,6,self.version); self.set_char_spacing(0)
+        self.set_text_color(*INK)

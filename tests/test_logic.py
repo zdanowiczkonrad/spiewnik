@@ -8,6 +8,8 @@ import common
 @pytest.mark.parametrize("tok", [
     "G", "D", "e", "h", "A7", "Cmaj7", "D/F#", "gis", "fis", "Dsus2", "Bm7",
     "Asus4", "H7", "|", "/x2", "(", "[/]",
+    # warianty zapisu naprawione po zgłoszeniu (nawiasy wewnętrzne, łączenie „-", wiodący „/")
+    "G(7)", "(h)", "(fis)", "G/h", "h-A-h", "/D-Dsus4",
 ])
 def test_is_chord_positive(tok):
     assert common.is_chord(tok)
@@ -35,6 +37,40 @@ def test_strip_chords_removes_chord_lines_and_capo():
 def test_strip_chords_keeps_lyrics_without_chords():
     body = "Idzie mój Pan, idzie mój Pan"
     assert common.strip_chords(body) == ["Idzie mój Pan, idzie mój Pan"]
+
+
+def _run(line):
+    import re
+    toks = [t for t in re.split(r"(\s+)", line) if t != ""]
+    ns = [i for i, t in enumerate(toks) if t.strip()]
+    return {toks[i] for i in common.chord_run(toks, ns)}
+
+
+def test_chord_run_trailing():
+    # tylko końcowy ciąg akordów, słowa tekstu nietknięte
+    assert _run("Panie, któż jak Ty, od wieków   e C G(7)") == {"e", "C", "G(7)"}
+
+
+def test_chord_run_legenda():
+    # linia-legenda: wszystkie akordy kolorowane, etykiety sekcji zostają tekstem
+    got = _run("zwrotka: E H A  |  ref.: E H cis A  |  bridge: H E A")
+    assert got == {"E", "H", "A", "cis", "|"}
+    assert "zwrotka:" not in got and "ref.:" not in got
+
+
+def test_chord_run_nie_lapie_lirycznego_dwukropka():
+    # słowo z dwukropkiem (NIE nazwa sekcji) nie robi z wersu legendy
+    assert _run("Powiedziałeś:   F") == {"F"}
+
+
+@pytest.mark.parametrize("tok,exp", [("zwrotka:", True), ("ref.:", True), ("bridge:", True),
+                                     ("Powiedziałeś:", False), ("Pan", False)])
+def test_is_section_label(tok, exp):
+    assert common.is_section_label(tok) is exp
+
+
+def test_build_version_zwraca_str():
+    assert isinstance(common.build_version(), str)
 
 
 @pytest.mark.parametrize("raw,expected", [

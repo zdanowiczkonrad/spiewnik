@@ -68,6 +68,9 @@ header.top h1{font-family:Playfair,serif;font-weight:700;font-size:26px;margin:0
 .body.lyrics-only .ch{display:none}
 .body.lyrics-only .ln.chordline{display:none}
 
+.sitever{padding:24px 0 40px}
+.sitever .wrap{color:var(--lgy);font-size:12px;text-align:center}
+
 @media (min-width:600px){
   header.top h1{font-size:30px}
   .song h2{font-size:30px}

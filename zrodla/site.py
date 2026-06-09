@@ -7,7 +7,7 @@ Buduje samodzielny katalog `docs/` z bazy `Baza_piesni/*.md`:
 - pdf/ (kopie wygenerowanych śpiewników do pobrania).
 Linki są względne — działa pod dowolną ścieżką (np. zdanowicz.dev/spiewnik/)."""
 import os, re, json, glob, html, shutil
-from common import ROOT, FONTS, fold, fmt_key, is_chord, load_all
+from common import ROOT, FONTS, fold, fmt_key, chord_run, is_section_label, BUILD_VERSION, load_all
 
 WEB  = os.path.join(ROOT, "web")
 DOCS = os.path.join(ROOT, "docs")
@@ -25,11 +25,9 @@ def render_body_html(body):
         capo = bool(re.match(r"(?i)^\s*capo\b", raw))
         toks = [t for t in re.split(r"(\s+)", raw) if t != ""]
         ns = [i for i, t in enumerate(toks) if t.strip()]
-        run = set()
-        for i in reversed(ns):
-            if is_chord(toks[i]): run.add(i)
-            else: break
-        chordonly = capo or (len(ns) > 0 and all(i in run for i in ns))
+        run = chord_run(toks, ns)
+        # linia samych chwytów lub legenda (zwrotka:/ref.:) → .chordline (ukrywana bez chwytów)
+        chordonly = capo or (len(ns) > 0 and all((i in run) or is_section_label(toks[i]) for i in ns))
         parts = []
         for i, t in enumerate(toks):
             esc = html.escape(t)
@@ -91,6 +89,7 @@ PAGE = """<!doctype html>
 </div></header>
 <main class="wrap"><div id="list" class="list"></div></main>
 __DOWNLOADS__
+<footer class="sitever"><div class="wrap">__VERSION__</div></footer>
 <div id="songview" class="songview" hidden>
   <div class="songbar">
     <button id="back" class="iconbtn" aria-label="Wróć do listy">‹ Lista</button>
@@ -112,8 +111,10 @@ def main():
     os.makedirs(DOCS, exist_ok=True)
     songs = build_songs()
     pdf_names = copy_assets()
+    ver = ("wersja " + html.escape(BUILD_VERSION)) if BUILD_VERSION else ""
     page = (PAGE
             .replace("__DOWNLOADS__", downloads_html(pdf_names))
+            .replace("__VERSION__", ver)
             .replace("__DATA__", json.dumps(songs, ensure_ascii=False, separators=(",", ":"))))
     with open(os.path.join(DOCS, "index.html"), "w", encoding="utf-8") as f:
         f.write(page)

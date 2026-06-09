@@ -29,14 +29,29 @@ nie widać wprost z kodu.
 
 ## Rozpoznawanie i kolorowanie akordów
 
-- `_is_chord(token)` rozpoznaje token akordowy (root A–H/a–h + akcydencje `is/es/#/b` +
-  sufiksy `m, maj7, sus, dim, add, 7, 9…` oraz klastry typu `GDCG`) i markery (`|`, `/x2`…).
-- W linii kolorowany (szary `#555`, pogrubiony) jest **tylko końcowy ciąg tokenów-akordów** —
-  liczony od końca aż do pierwszego nie-akordu. Dzięki temu chwyty nad tekstem i kolumny chwytów
-  na końcu linii są szare, a słowa tekstu czarne.
-- W wersjach bez chwytów `strip_chords()` usuwa też markery powtórzeń (`/x2`, `(bis)`, `x4`…).
-- Uwaga na kolizję nazw: w bloku kolorowania akordów używaj `_cROOT/_cACC/_cSUF`, nie
+- `is_chord(token)` rozpoznaje token akordowy (root A–H/a–h + akcydencje `is/es/#/b` +
+  sufiksy `m, maj7, sus, dim, add, 7, 9…`, klastry typu `GDCG`, akordy z basem `G/h`,
+  nawiasy wewnętrzne `G(7)`→`G7`, sekwencje łączone `-` i wiodący `/`: `h-A-h`, `/D-Dsus4`)
+  oraz markery (`|`, `/x2`…).
+- **Który token to chwyt liczy współdzielony `chord_run(toks, ns)`** (NIE kopiuj pętli — używają
+  go `pdf.py`, `pdf_full.py`, `site.py`): domyślnie **końcowy ciąg tokenów-akordów** (od końca
+  do pierwszego nie-akordu), więc chwyty nad tekstem i kolumny na końcu linii są szare, a słowa
+  czarne. Wyjątek — **linia-legenda**: gdy wszystkie nie-akordy to nazwy sekcji (`is_section_label`:
+  `zwrotka:`, `ref.:`, `bridge:`, `intro:`…), kolorowane są **wszystkie** chwyty w linii.
+- W wersjach bez chwytów `strip_chords()` usuwa markery powtórzeń (`/x2`, `(bis)`, `x4`…) i
+  pomija całe linie-legendy oraz czysto akordowe.
+- Uwaga na kolizję nazw: w bloku rozpoznawania akordów używaj `_cROOT/_cACC/_cSUF`, nie
   `_ROOT/_ACC/_SUF` (te ostatnie należą do `fmt_key`).
+
+## Wersja buildu i kod QR
+
+- `BUILD_VERSION` (w `common.py`) = `RRRR-MM-DD · hash` ostatniego commita (z gita; przy braku
+  repo → `""` i stempel jest pomijany). Trafia na okładki, stopki PDF (`SongbookPDF.footer`,
+  własna stopka `pdf_lud`) i stopkę strony web — żeby poznać aktualność luźnej wydrukowanej kartki.
+- Kod QR na okładkach prowadzi do `SITE_URL` (`zdanowicz.dev/spiewnik`). Osadza go `draw_site_qr()`
+  ze statycznego `zrodla/assets/qr-spiewnik.png`. **Regeneracja po zmianie URL:** `python3 zrodla/make_qr.py`
+  (tylko biblioteka standardowa — pobiera PNG z publicznego API; NIE jest częścią runtime/CI),
+  potem zacommituj nowy PNG. Brak assetu = okładka bez QR (graceful).
 
 ## Pułapki fpdf2
 

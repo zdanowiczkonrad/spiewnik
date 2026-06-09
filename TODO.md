@@ -1,24 +1,27 @@
 # Rzeczy do dodania
 
 ## Baza pieśni
-- Edytor pieśni webowy za hasłem
-- Unifikacja notacji chwytów
+- Edytor pieśni webowy za hasłem (P1)
+- Unifikacja notacji chwytów (P0)
 
 ## Print, skład
-- Raportuj za mały font w pieśniach i zasugeruj przerzucenie akordow
+- ✅ Raportuj za mały font w pieśniach i zasugeruj przerzucenie akordow "nad linijke" — raport po buildzie `pdf_full.py` (próg 7.0 chwyty / 8.5 teksty)
 - nie pozwalaj na łamanie linii z chwytami od tekstu 
-- Cała pieśń bez przekładania strony
+- Cała pieśń bez przekładania strony - zeby podczas grania nie bylo trzeba sie meczyc
+- ✅ Kod QR prowadzacy do aktualnego spiewnika — na okładkach (→ zdanowicz.dev/spiewnik), regeneracja `zrodla/make_qr.py`
+- ✅ wersja spiewnika — auto-stempel z gita (data · hash) na okładce/stopce PDF i stronie web
 
 ## Engine, formatowanie
-- Akordy nie są wyłapane w jednej pieśni
 - Indeks source'ów i linki do youtube
 - Indeks fajnych akordów - schematy/tabulatory dla róznych tonacji: open E, open C, open D, jazzowe (7th), SUSy, Maj
 - Generator progresji z pochodami basowymi oraz ergonomicznymi pozycjami
 
 ## Web
-- lista historyczna doboru pieśni
-- Oprawa Mszy - opcja podglądu pieśni + wejścia rozwinięcia pieśni
-- Przełącznik notacji
+- lista historyczna doboru pieśni (P0)
+- Oprawa Mszy - opcja podglądu pieśni + wejścia rozwinięcia pieśni (P0)
+- Przełącznik notacji chwytow
+* Transpozycja wbudowana
+* schematy akordow po hover
 
 ## Poprawki w pieśniach
 
@@ -29,8 +32,8 @@
 ## Generator
 
 ## Misc
-- Kategorie pieśni - nie tylko religijne?
-- Osobne entrypointy do róznych spiewnikow
+- Kategorie pieśni - nie tylko religijne? (P0)
+- Osobne entrypointy do róznych spiewnikow (P1)
 
 
 # Muzyka Polska - poezja

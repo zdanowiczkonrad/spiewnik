@@ -5,7 +5,7 @@
 import os, re
 from fpdf.enums import XPos, YPos
 from common import (INK, GRY, LGY, HAIR, CHORDCOL, fold, fmt_key, chord_run,
-                    load_by_title, add_fonts, SongbookPDF)
+                    load_by_title, add_fonts, SongbookPDF, BUILD_VERSION, draw_site_qr)
 from plan_data import SELECTED, PLAN, EVENT
 
 # treści pieśni czytane WPROST z bazy (Baza_piesni/*.md = źródło prawdy)
@@ -47,11 +47,16 @@ def build(pages):
     pdf.cell(0,9,"oprawa muzyczna liturgii",align="C",new_x=XPos.LMARGIN,new_y=YPos.NEXT)
     pdf.ln(3); pdf.set_font("sans","",11); pdf.set_text_color(*GRY)
     pdf.cell(0,7,EVENT["subtitle"],align="C",new_x=XPos.LMARGIN,new_y=YPos.NEXT)
+    draw_site_qr(pdf, 105, 200, 32)          # QR do żywej strony — w dolnej części okładki
     pdf.set_y(297-44)
     pdf.set_font("sans","",8.5); pdf.set_text_color(*GRY); cspace(2)
     pdf.cell(0,5,"PROWADZENIE MUZYCZNE: KONRAD · WYZNANIE RZYMSKOKATOLICKIE",align="C",new_x=XPos.LMARGIN,new_y=YPos.NEXT)
     cspace(0)
-    pdf.cell(0,5,f"{len(content)} pieśni z chwytami · notacja polska (h = H-moll, małe litery = molowe)",align="C")
+    pdf.cell(0,5,f"{len(content)} pieśni z chwytami · notacja polska (h = H-moll, małe litery = molowe)",align="C",
+             new_x=XPos.LMARGIN,new_y=YPos.NEXT)
+    if BUILD_VERSION:
+        pdf.ln(2); pdf.set_font("sans","",7); pdf.set_text_color(*LGY); cspace(1)
+        pdf.cell(0,4,("wersja "+BUILD_VERSION).upper(),align="C"); cspace(0)
     pdf.set_text_color(*INK)
 
     # ---------- PORZĄDEK NABOŻEŃSTW ----------

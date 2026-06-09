@@ -3,7 +3,7 @@
 import os, re, sys
 from fpdf.enums import XPos, YPos
 from common import (INK, GRY, LGY, HAIR, CHORDCOL, fold, fmt_key, chord_run,
-                    strip_chords, load_all, add_fonts, SongbookPDF, ROOT)
+                    strip_chords, load_all, add_fonts, SongbookPDF, ROOT, BUILD_VERSION, draw_site_qr)
 from plan_data import EVENT
 
 # ---------- wczytanie bazy z plików MD ----------
@@ -64,6 +64,7 @@ def cover(pdf):
     pdf.ln(8 if A5 else 11)
     pdf.set_font("sans","",10 if A5 else 11); pdf.set_text_color(*GRY)
     pdf.cell(0,7,EVENT["short"],align="C",new_x=XPos.LMARGIN,new_y=YPos.NEXT)
+    draw_site_qr(pdf, W/2, (116 if A5 else 168), (22 if A5 else 30))   # QR do żywej strony
     # stopka okładki
     pdf.set_y(H-(28 if A5 else 40))
     pdf.set_font("sans","",7 if A5 else 8.5); pdf.set_text_color(*GRY); pdf.set_char_spacing(1.4 if A5 else 2)
@@ -72,7 +73,12 @@ def cover(pdf):
                    f"{N} PIEŚNI · NOTACJA POLSKA (h = H-moll, małe litery = molowe)")),
              align="C",new_x=XPos.LMARGIN,new_y=YPos.NEXT)
     pdf.set_char_spacing(0)
-    pdf.cell(0,5,"Źródła różne, zebranie i opracowanie: Konrad Zdanowicz 2026",align="C")
+    pdf.cell(0,5,"Źródła różne, zebranie i opracowanie: Konrad Zdanowicz 2026",align="C",
+             new_x=XPos.LMARGIN,new_y=YPos.NEXT)
+    if BUILD_VERSION:
+        pdf.ln(2); pdf.set_font("sans","",6.5 if A5 else 7); pdf.set_text_color(*LGY); pdf.set_char_spacing(1)
+        pdf.cell(0,4,("wersja "+BUILD_VERSION).upper(),align="C"); pdf.set_char_spacing(0)
+    pdf.set_text_color(*INK)
 
 # ---------- pomiar wysokości pieśni ----------
 def song_metrics(pdf,s):
@@ -228,3 +234,18 @@ base = "Śpiewnik pełny – teksty" if PLAIN else "Śpiewnik pełny – chwyty"
 out=os.path.join(ROOT, base + (" (A5)" if A5 else "") + ".pdf")
 pdf.output(out)
 print("OK:",out,"| stron:",pdf.page_no(),"| pieśni:",N,"| stuby:",len(stubs),"| spis stron:",ntoc,"| plain:",PLAIN)
+
+# raport: pieśni, w których font spadł poniżej progu (najdłuższa linia za szeroka).
+# Sygnał, że warto przerzucić chwyty „nad linijkę” zamiast trzymać kolumnę na końcu wersu.
+TIGHT = 8.5 if PLAIN else 7.0
+tight=[]
+for s in content:
+    lines,bs,_,_=song_metrics(pdf,s)
+    if bs < TIGHT:
+        pdf.set_font("sans" if PLAIN else "mono","",10)
+        longest=max(lines, key=pdf.get_string_width).strip()
+        tight.append((bs,s["title"],longest))
+if tight:
+    print(f"[UWAGA] mały font (< {TIGHT}) w {len(tight)} pieśniach — rozważ przerzucenie chwytów „nad linijkę”:")
+    for bs,t,l in sorted(tight):
+        print(f"   • {t} (font {bs:.1f}) — najdłuższa: {l[:64]}")
