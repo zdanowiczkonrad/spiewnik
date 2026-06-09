@@ -3,7 +3,8 @@
 import os, re, sys
 from fpdf.enums import XPos, YPos
 from common import (INK, GRY, LGY, HAIR, CHORDCOL, fold, fmt_key, chord_run,
-                    strip_chords, load_all, add_fonts, SongbookPDF, ROOT, BUILD_VERSION, draw_site_qr)
+                    strip_chords, load_all, add_fonts, SongbookPDF, ROOT, BUILD_VERSION,
+                    draw_site_qr, draw_chord_index)
 from plan_data import EVENT
 
 # ---------- wczytanie bazy z plików MD ----------
@@ -228,7 +229,9 @@ draw_toc(pdf, starts, ntoc)
 starts2=render_songs(pdf)
 assert starts==starts2, ("rozjazd paginacji", starts, starts2)
 if not PLAIN:
-    add_note_pages(pdf, 8)          # 8 stron na notatki (linie) — tylko wersja z chwytami
+    pdf.chrome=True; pdf.add_page()
+    draw_chord_index(pdf, ML, W, H)     # załącznik „Indeks akordów" — tylko wersja z chwytami
+    add_note_pages(pdf, 8)              # 8 stron na notatki (linie)
 
 base = "Śpiewnik pełny – teksty" if PLAIN else "Śpiewnik pełny – chwyty"
 out=os.path.join(ROOT, base + (" (A5)" if A5 else "") + ".pdf")

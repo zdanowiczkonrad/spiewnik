@@ -9,7 +9,7 @@ Capo 1
 e  D C G
 C D e G
 
-(D/F#) e    D      C
+(D/Fis) e    D      C
 Skosztujcie i zobaczcie
     G            D
 Jak słodki jest Pan

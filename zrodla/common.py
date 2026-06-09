@@ -7,6 +7,7 @@ formatowanie tonacji, ładowanie fontów oraz bazowa klasa PDF (nagłówek/stopk
 Baza `.md` jest źródłem prawdy — ten moduł niczego nie zapisuje."""
 import os, re, glob, unicodedata, subprocess
 from fpdf import FPDF
+from fpdf.enums import XPos, YPos
 
 # --- ścieżki (wyliczane z położenia pliku — bez zaszytych ścieżek absolutnych) ---
 ROOT   = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -54,6 +55,73 @@ def is_chord(tok):
 def is_section_label(tok):
     """Token będący nazwą sekcji w linii-legendzie chwytów („zwrotka:", „ref.:", „bridge:")."""
     return bool(_LABEL.match(tok.strip()))
+
+# --- notacja: kanoniczna postać POLSKA + konwersja na amerykańską (dla web-toggle) ---
+# Zasada (wg ustaleń): WIELKA litera = dur, mała = moll; krzyżyk = „is", bemol = „es".
+# Pułapka H/B: międzynarodowe B = polskie H; międzynarodowe Bb = polskie B; polskie samotne „B" = Bb.
+# Stąd: „Bm"→„h", „Bb"→„B", a samotne „B" zostaje „B". Krzyżyk „#" jest ZAWSZE międzynarodowy.
+_PL_ROOT={  # (litera_C-systemu, rodzaj_akcydencji '', 'is', 'es') → polski zapis duru
+    ("C",""):"C",("C","is"):"Cis",("C","es"):"Ces",
+    ("D",""):"D",("D","is"):"Dis",("D","es"):"Des",
+    ("E",""):"E",("E","is"):"Eis",("E","es"):"Es",
+    ("F",""):"F",("F","is"):"Fis",("F","es"):"Fes",
+    ("G",""):"G",("G","is"):"Gis",("G","es"):"Ges",
+    ("A",""):"A",("A","is"):"Ais",("A","es"):"As",
+    ("H",""):"H",("H","is"):"His",("H","es"):"B",
+    ("B",""):"B",                       # samotne B = Bb (dur)
+}
+_PL2US={"C":"C","Cis":"C#","Ces":"Cb","D":"D","Dis":"D#","Des":"Db","E":"E","Eis":"E#","Es":"Eb",
+        "F":"F","Fis":"F#","Fes":"Fb","G":"G","Gis":"G#","Ges":"Gb","A":"A","Ais":"A#","As":"Ab",
+        "H":"B","His":"B#","B":"Bb"}
+_ACCMAP={"#":"is","is":"is","b":"es","es":"es","s":"es"}   # „s" (polski bemol jak Es/As) traktujemy jak „es"
+# akcydencja „s" tylko gdy NIE rozpoczyna „sus" (inaczej „Esus4” → błędnie „Es”+„us4”)
+_CHORD_RE=re.compile(r"^([A-Ha-h])(is|es|#|b|s(?!us))?(.*)$")
+
+def _parse_chord(tok):
+    """Token akordu → (polski_root_durowy, moll?, sufiks) albo None. Rozumie zapis polski i międzynarodowy."""
+    m=_CHORD_RE.match(tok.strip())
+    if not m: return None
+    letter, acc, rest = m.group(1), m.group(2) or "", m.group(3)
+    minor = letter.islower()
+    intl_minor=False
+    if not minor:
+        mm=re.match(r"^m(?!aj)(.*)$", rest)     # „m" międzynarodowe (ale nie „maj")
+        if mm: minor=True; intl_minor=True; rest=mm.group(1)
+    L=letter.upper(); a=_ACCMAP.get(acc, "")
+    # międzynarodowe natural-B z minorem = polskie H (B-moll); samotne/duro-B zostaje B (Bb)
+    if L=="B" and intl_minor: root="H"
+    else: root=_PL_ROOT.get((L,a)) or _PL_ROOT.get((L,""))
+    if root is None: return None
+    return root, minor, rest
+
+def canon_chord(tok):
+    """Dowolny zapis pojedynczego akordu → kanoniczna postać polska (Am→a, C#m7→cis7, C#7→Cis7, Bm7→h7).
+    Nie-akord zwraca bez zmian."""
+    p=_parse_chord(tok)
+    if p is None: return tok
+    root, minor, suf = p
+    return (root.lower() if minor else root) + suf
+
+def to_american(tok):
+    """Kanoniczny polski akord → zapis amerykański (cis7→C#m7, Cis7→C#7, h7→Bm7, B7→Bb7). Dla web-toggle."""
+    p=_parse_chord(tok)
+    if p is None: return tok
+    root, minor, suf = p
+    us=_PL2US.get(root, root)
+    return (us+"m"+suf) if minor else (us+suf)
+
+_SEQSPLIT=re.compile(r"([/\-])")           # bas po „/" oraz sekwencje łączone „-"
+def map_chord_token(tok, fn):
+    """Stosuje fn (canon_chord / to_american) do każdego akordu w tokenie, zachowując
+    nawiasy, markery (|, /x2), bas po „/" i sekwencje „-". Nie-akordy zwraca bez zmian."""
+    t=tok.strip()
+    if not t or _MARK.fullmatch(t) or _REP.fullmatch(t) or is_section_label(t) or not is_chord(t): return tok
+    pre=""; post=""
+    m=re.match(r"^([(\[]*)(.*?)([)\].,;]*)$", t)
+    if m: pre,t,post = m.group(1),m.group(2),m.group(3)
+    parts=_SEQSPLIT.split(t)               # ['G','/','h'] / ['h','-','A','-','h']
+    out="".join(p if p in ("/","-") else fn(p) for p in parts)
+    return pre+out+post
 
 def chord_run(toks, ns):
     """Indeksy tokenów-akordów do pokolorowania/usunięcia.
@@ -172,6 +240,87 @@ def draw_site_qr(pdf, cx, y, size, caption="ŚPIEWNIK ONLINE · ZDANOWICZ.DEV/SP
         pdf.cell(pdf.w, 4, caption, align="C"); pdf.set_char_spacing(0); pdf.set_text_color(*INK)
         yb+=5.6
     return yb
+
+# --- diagramy chwytów (chords.json) ---
+def load_chords():
+    import json
+    with open(os.path.join(SRC, "chords.json"), encoding="utf-8") as f:
+        return json.load(f)
+
+def draw_chord_diagram(pdf, x, y, name, frets, cell=4.0):
+    """Diagram chwytu. (x,y) = lewy-górny róg bloku. frets: 6 wartości w kolejności
+    strun E→e (int / 0 = pusta / 'x' = tłumiona). Okno progów liczone automatycznie
+    (obsługuje wojsingi wysoko na gryfie). Zwraca (szerokość, wysokość) bloku."""
+    n=6; gw=cell*(n-1)
+    fr=[f for f in frets if isinstance(f,int) and f>0]
+    if fr:
+        lo,hi=min(fr),max(fr)
+        top,rows = (1,4) if hi<=4 else (lo, max(4, hi-lo+1))
+    else:
+        top,rows = 1,4
+    rh=cell
+    # nazwa
+    pdf.set_xy(x-2, y); pdf.set_font("play","B",8.5); pdf.set_text_color(*INK)
+    pdf.cell(gw+4, 4, name, align="C")
+    gy=y+6.2; my=gy-1.9                    # góra siatki / środek wiersza markerów o-x
+    # markery o (pusta) / x (tłumiona) — rysowane kształtami (bez zależności od glifów fontu)
+    for i,f in enumerate(frets):
+        sx=x+i*cell
+        if f=="x":
+            pdf.set_draw_color(*GRY); pdf.set_line_width(0.3); d=0.85
+            pdf.line(sx-d,my-d,sx+d,my+d); pdf.line(sx-d,my+d,sx+d,my-d)
+        elif f==0:
+            pdf.set_draw_color(*GRY); pdf.set_line_width(0.25); r=0.85
+            pdf.ellipse(sx-r,my-r,2*r,2*r,style="D")
+    # siatka
+    pdf.set_draw_color(*GRY); pdf.set_line_width(0.2)
+    for i in range(n): sx=x+i*cell; pdf.line(sx,gy,sx,gy+rh*rows)
+    for r in range(rows+1): yy=gy+rh*r; pdf.line(x,yy,x+gw,yy)
+    if top==1:
+        pdf.set_line_width(0.8); pdf.line(x,gy,x+gw,gy); pdf.set_line_width(0.2)
+    else:
+        pdf.set_font("sans","",5.5); pdf.set_text_color(*GRY)
+        pdf.set_xy(x+gw+0.4, gy-0.6); pdf.cell(6,3,f"{top}")
+    # kropki
+    pdf.set_fill_color(*INK)
+    for i,f in enumerate(frets):
+        if isinstance(f,int) and f>0:
+            cyc=gy+rh*((f-top+1)-0.5); cxc=x+i*cell; rad=cell*0.30
+            pdf.ellipse(cxc-rad, cyc-rad, rad*2, rad*2, style="F")
+    pdf.set_text_color(*INK)
+    return gw, (gy+rh*rows)-y
+
+def draw_chord_index(pdf, ML, W, H, intro=True):
+    """Renderuje „Indeks akordów" (wojsingi z chords.json, pogrupowane parami dur/moll)
+    na bieżącej stronie `pdf`. ML = margines, W/H = wymiary strony. Łamie strony sam."""
+    data=load_chords()
+    botm = 12 if W < 160 else 15
+    if intro:
+        pdf.set_x(ML); pdf.set_font("play","B", 18 if W<160 else 24); pdf.set_text_color(*INK)
+        pdf.cell(0,12,"Indeks akordów", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+        pdf.set_x(ML); pdf.set_font("sans","",8.2); pdf.set_text_color(*GRY)
+        pdf.multi_cell(W-2*ML, 4.2, "Otwartostrunowe / sus wojsingi pogrupowane parami równoległymi dur/moll "
+                       "(ten sam burdon pustych strun). Struny E–A–D–G–B–e; kółko = struna pusta, x = tłumiona. "
+                       "Pod diagramem funkcja względem tonacji durowej.", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+        pdf.ln(2); pdf.set_text_color(*INK)
+    COLW = 23 if W < 160 else 26
+    ROWH = 31 if W < 160 else 33
+    perrow = max(4, int((W-2*ML)//COLW))
+    for key, voicings in data["voicings"].items():
+        if pdf.get_y()+ROWH+14 > H-botm: pdf.add_page()
+        pdf.set_x(ML); pdf.set_font("play","B", 12 if W<160 else 13); pdf.set_text_color(*INK)
+        pdf.cell(0,8,key, new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+        yb=pdf.get_y(); pdf.set_draw_color(*HAIR); pdf.set_line_width(0.2); pdf.line(ML,yb,W-ML,yb); yb+=3
+        for i,v in enumerate(voicings):
+            col=i%perrow
+            if col==0 and i>0: yb+=ROWH
+            if col==0 and yb+ROWH>H-botm: pdf.add_page(); yb=pdf.t_margin
+            x=ML+2+col*COLW
+            draw_chord_diagram(pdf, x, yb, v["name"], v["frets"])
+            if v.get("role"):
+                pdf.set_xy(x-2, yb+26); pdf.set_font("sans","",6); pdf.set_text_color(*GRY)
+                pdf.cell(COLW-4, 3, v["role"], align="C"); pdf.set_text_color(*INK)
+        pdf.set_y(yb+ROWH+2)
 
 # --- bazowa klasa PDF: nagłówek/stopka w stylu śpiewnika A4/A5 ---
 # (left_label/right_label nadpisuje każdy generator; pdf_lud.py ma własny, kompaktowy nagłówek)

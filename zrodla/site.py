@@ -7,7 +7,7 @@ Buduje samodzielny katalog `docs/` z bazy `Baza_piesni/*.md`:
 - pdf/ (kopie wygenerowanych śpiewników do pobrania).
 Linki są względne — działa pod dowolną ścieżką (np. zdanowicz.dev/spiewnik/)."""
 import os, re, json, glob, html, shutil
-from common import ROOT, FONTS, fold, fmt_key, chord_run, is_section_label, BUILD_VERSION, load_all
+from common import ROOT, FONTS, fold, fmt_key, chord_run, is_section_label, BUILD_VERSION, load_all, load_chords
 
 WEB  = os.path.join(ROOT, "web")
 DOCS = os.path.join(ROOT, "docs")
@@ -57,7 +57,8 @@ def copy_assets():
         shutil.copy2(os.path.join(WEB, f), os.path.join(DOCS, f))
     for f in SITE_FONTS:
         shutil.copy2(os.path.join(FONTS, f), os.path.join(DOCS, "fonts", f))
-    pdfs = sorted(glob.glob(os.path.join(ROOT, "*.pdf")))
+    pdfs = sorted(p for p in glob.glob(os.path.join(ROOT, "*.pdf"))
+                  if not os.path.basename(p).startswith("_"))   # pomiń pliki robocze (_podglad…)
     for p in pdfs:
         shutil.copy2(p, os.path.join(DOCS, "pdf", os.path.basename(p)))
     return [os.path.basename(p) for p in pdfs]
@@ -82,7 +83,7 @@ PAGE = """<!doctype html>
 </head>
 <body>
 <header class="top"><div class="wrap">
-  <h1>Śpiewnik</h1>
+  <div class="toprow"><h1>Śpiewnik</h1><button id="openChords" class="navbtn">♪ Akordy</button></div>
   <div class="searchbar"><input id="q" type="search" inputmode="search" enterkeyhint="search"
        placeholder="Szukaj tytułu lub wpisz numer…" autocomplete="off" autocapitalize="none"></div>
   <div class="filters" id="filters"></div>
@@ -94,6 +95,7 @@ __DOWNLOADS__
   <div class="songbar">
     <button id="back" class="iconbtn" aria-label="Wróć do listy">‹ Lista</button>
     <div class="songtools">
+      <button id="toggleNotation" class="iconbtn" aria-pressed="false" title="Notacja polska / amerykańska">H↔B</button>
       <button id="toggleChords" class="iconbtn" aria-pressed="true">♪ chwyty</button>
       <button id="fontMinus" class="iconbtn" aria-label="Mniejszy tekst">A−</button>
       <button id="fontPlus" class="iconbtn" aria-label="Większy tekst">A+</button>
@@ -101,7 +103,16 @@ __DOWNLOADS__
   </div>
   <article id="song" class="song"></article>
 </div>
-<script>window.SONGS=__DATA__;</script>
+<div id="chordsview" class="songview" hidden>
+  <div class="songbar">
+    <button id="chordsBack" class="iconbtn" aria-label="Wróć do listy">‹ Lista</button>
+    <div class="songtools">
+      <button id="toggleNotationCd" class="iconbtn" aria-pressed="false" title="Notacja polska / amerykańska">H↔B</button>
+    </div>
+  </div>
+  <article id="chordsbody" class="chordsbody"></article>
+</div>
+<script>window.SONGS=__DATA__;window.CHORDS=__CHORDS__;</script>
 <script src="app.js"></script>
 </body>
 </html>
@@ -112,9 +123,11 @@ def main():
     songs = build_songs()
     pdf_names = copy_assets()
     ver = ("wersja " + html.escape(BUILD_VERSION)) if BUILD_VERSION else ""
+    chords = load_chords().get("voicings", {})
     page = (PAGE
             .replace("__DOWNLOADS__", downloads_html(pdf_names))
             .replace("__VERSION__", ver)
+            .replace("__CHORDS__", json.dumps(chords, ensure_ascii=False, separators=(",", ":")))
             .replace("__DATA__", json.dumps(songs, ensure_ascii=False, separators=(",", ":"))))
     with open(os.path.join(DOCS, "index.html"), "w", encoding="utf-8") as f:
         f.write(page)

@@ -2,7 +2,7 @@
 
 ## Baza pieśni
 - Edytor pieśni webowy za hasłem (P1)
-- Unifikacja notacji chwytów (P0)
+- ✅ Unifikacja notacji chwytów (P0) — `canon_chord()` w common.py; baza ujednolicona do notacji polskiej (Am→a, C#m7→cis7, C#7→Cis7); `zrodla/unify_notation.py`
 
 ## Print, skład
 - ✅ Raportuj za mały font w pieśniach i zasugeruj przerzucenie akordow "nad linijke" — raport po buildzie `pdf_full.py` (próg 7.0 chwyty / 8.5 teksty)
@@ -13,15 +13,15 @@
 
 ## Engine, formatowanie
 - Indeks source'ów i linki do youtube
-- Indeks fajnych akordów - schematy/tabulatory dla róznych tonacji: open E, open C, open D, jazzowe (7th), SUSy, Maj
+- ✅ Indeks fajnych akordów — `chords.json` + `draw_chord_index` (sus/otwartostrunowe wojsingi pogrupowane parami dur/moll, z funkcjami); załącznik w `pdf_full` + widok na web (SVG). TODO: stroje open E/C/D, jazzowe
 - Generator progresji z pochodami basowymi oraz ergonomicznymi pozycjami
 
 ## Web
 - lista historyczna doboru pieśni (P0)
 - Oprawa Mszy - opcja podglądu pieśni + wejścia rozwinięcia pieśni (P0)
-- Przełącznik notacji chwytow
+- ✅ Przełącznik notacji chwytow — toggle PL↔US w app.js (H↔B), domyślnie polska; `to_american()` + port JS
 * Transpozycja wbudowana
-* schematy akordow po hover
+* schematy akordow po hover — jest pełny WIDOK indeksu akordów (przycisk „Akordy"); hover-na-akord-w-pieśni wymaga biblioteki pojedynczych kształtów (osobne dane)
 
 ## Poprawki w pieśniach
 

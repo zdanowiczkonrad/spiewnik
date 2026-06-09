@@ -1,0 +1,76 @@
+{
+  "_uwaga": "frets: 6 wartości w kolejności strun E A D G B e (od najgrubszej). Liczba = próg, 0 = pusta, \"x\" = tłumiona. 'voicings' pogrupowane wg par równoległych dur/moll (ta sama liczba znaków = ten sam burdon otwartych strun). 'role' = funkcja względem tonacji DUROWEJ (vi = tonika molowej równoległej). PROPOZYCJE do weryfikacji gitarą.",
+  "tuning": "EADGBE",
+  "voicings": {
+    "C-dur / a-moll": [
+      {"name": "C",     "frets": ["x", 3, 2, 0, 1, 0], "role": "I"},
+      {"name": "Cadd9", "frets": ["x", 3, 2, 0, 3, 0], "role": "I"},
+      {"name": "Cmaj7", "frets": ["x", 3, 2, 0, 0, 0], "role": "I"},
+      {"name": "C",   "frets": ["x", 3, 2, 0, 1, 3], "role": "I"},
+      {"name": "d",     "frets": ["x", "x", 0, 2, 3, 1], "role": "ii"},
+      {"name": "e7",    "frets": [0, 2, 0, 0, 3, 0], "role": "iii"},
+      {"name": "Fmaj7", "frets": [1, 3, 3, 2, 1, 0], "role": "IV"},
+      {"name": "Fadd9", "frets": [1, "x", 3, 2, 1, 3], "role": "IV"},
+      {"name": "G",     "frets": [3, 2, 0, 0, 0, 3], "role": "V"},
+      {"name": "Gadd4", "frets": [3, 2, 0, 0, 1, 3], "role": "V"},
+      {"name": "G/H",   "frets": ["x", 2, 0, 0, 0, 3], "role": "V"},
+      {"name": "a7",    "frets": ["x", 0, 2, 0, 1, 0], "role": "vi"}
+    ],
+    "G-dur / e-moll": [
+      {"name": "G",     "frets": [3, 2, 0, 0, 3, 3], "role": "I"},
+      {"name": "Gsus4", "frets": [3, 3, 0, 0, 1, 3], "role": "I"},
+      {"name": "a",     "frets": ["x", 0, 2, 2, 1, 0], "role": "ii"},
+      {"name": "a(add9)", "frets": ["x", 0, 2, 4, 1, 0], "role": "ii"},
+      {"name": "h",     "frets": ["x", 2, 4, 4, 3, 2], "role": "iii"},
+      {"name": "Cadd9", "frets": ["x", 3, 2, 0, 3, 3], "role": "IV"},
+      {"name": "D/Fis", "frets": [2, 0, 0, 2, 3, 2], "role": "V"},
+      {"name": "Dsus4", "frets": ["x", "x", 0, 2, 3, 3], "role": "V"},
+      {"name": "e7",    "frets": [0, 2, 2, 0, 3, 3], "role": "vi"},
+      {"name": "G/H",   "frets": ["x", 2, 0, 0, 0, 3], "role": "I"},
+      {"name": "e9",  "frets": ["x", 7, 5, 7, 7, "x"], "role": "vi"},
+      {"name": "a9",    "frets": ["x", 12, 10, 12, 12, "x"], "role": "ii"},
+      {"name": "Gmaj9", "frets": [3, 0, 4, 4, 3, "x"], "role": "I"},
+      {"name": "D9",    "frets": ["x", 5, 4, 5, 5, "x"], "role": "V"}
+    ],
+    "D-dur / h-moll": [
+      {"name": "D",     "frets": ["x", "x", 0, 2, 3, 2], "role": "I"},
+      {"name": "Dsus2", "frets": ["x", "x", 0, 2, 3, 0], "role": "I"},
+      {"name": "e9",    "frets": [0, 2, 4, 0, 3, 0], "role": "ii"},
+      {"name": "fis",   "frets": [2, "x", 2, 2, 0, 0], "role": "iii"},
+      {"name": "G",     "frets": [3, 2, 0, 0, 0, 3], "role": "IV"},
+      {"name": "A",     "frets": ["x", 0, 2, 2, 2, 0], "role": "V"},
+      {"name": "A/Cis", "frets": ["x", 4, 2, 2, 2, 0], "role": "V"},
+      {"name": "h7",    "frets": ["x", 2, 0, 2, 3, 0], "role": "vi"},
+      {"name": "h11",   "frets": ["x", 2, 0, 2, 2, 0], "role": "vi"}
+    ],
+    "A-dur / fis-moll": [
+      {"name": "A",     "frets": ["x", 0, 2, 2, 2, 0], "role": "I"},
+      {"name": "Asus2", "frets": ["x", 0, 2, 2, 0, 0], "role": "I"},
+      {"name": "Amaj7", "frets": ["x", 0, 2, 1, 2, 0], "role": "I"},
+      {"name": "h",     "frets": ["x", 2, 4, 4, 3, 2], "role": "ii"},
+      {"name": "cis",   "frets": ["x", 4, 6, 6, 5, 4], "role": "iii"},
+      {"name": "D",     "frets": ["x", "x", 0, 2, 3, 2], "role": "IV"},
+      {"name": "E7",    "frets": [0, 2, 0, 1, 0, 0], "role": "V"},
+      {"name": "fis",   "frets": [2, "x", 2, 2, 0, 0], "role": "vi"}
+    ],
+    "E-dur / cis-moll": [
+      {"name": "E",     "frets": [0, 2, 2, 1, 0, 0], "role": "I"},
+      {"name": "Esus4", "frets": [0, 2, 2, 2, 0, 0], "role": "I"},
+      {"name": "fis",   "frets": [2, "x", 2, 2, 0, 0], "role": "ii"},
+      {"name": "Gis",   "frets": [4, "x", 4, 4, 0, 0], "role": "iii"},
+      {"name": "Aadd9", "frets": [5, 7, 7, 6, 0, 0], "role": "IV"},
+      {"name": "Amaj7", "frets": ["x", 0, 2, 1, 2, 0], "role": "IV"},
+      {"name": "Hadd4", "frets": [7, 9, 9, 8, 0, 0], "role": "V"},
+      {"name": "cis9",  "frets": [0, 4, 6, 8, 0, 0], "role": "vi"},
+      {"name": "cis9",  "frets": [9, "x", 9, 8, 0, 0], "role": "vi"}
+    ],
+    "F-dur / d-moll": [
+      {"name": "Fmaj7", "frets": ["x", "x", 3, 2, 1, 0], "role": "I"},
+      {"name": "g",     "frets": [3, 5, 5, 3, 3, 3], "role": "ii"},
+      {"name": "a",     "frets": ["x", 0, 2, 2, 1, 0], "role": "iii"},
+      {"name": "B",     "frets": ["x", 1, 3, 3, 3, 1], "role": "IV"},
+      {"name": "C",     "frets": ["x", 3, 2, 0, 1, 0], "role": "V"},
+      {"name": "d",     "frets": ["x", "x", 0, 2, 3, 1], "role": "vi"}
+    ]
+  }
+}

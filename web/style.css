@@ -71,6 +71,29 @@ header.top h1{font-family:Playfair,serif;font-weight:700;font-size:26px;margin:0
 .sitever{padding:24px 0 40px}
 .sitever .wrap{color:var(--lgy);font-size:12px;text-align:center}
 
+/* ---------- nagłówek: wiersz z przyciskiem Akordy ---------- */
+.toprow{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.navbtn{font:inherit;font-size:14px;padding:7px 14px;border:1.5px solid var(--ink);border-radius:999px;
+  background:var(--bg);color:var(--ink);cursor:pointer;white-space:nowrap}
+.navbtn:active{background:#f0f0f0}
+
+/* ---------- indeks akordów (widok) ---------- */
+.chordsbody{max-width:var(--maxw);margin:0 auto;padding:18px 16px 80px}
+.chordsbody h2{font-family:Playfair,serif;font-weight:700;font-size:25px;margin:0 0 4px}
+.cdnote{color:var(--gry);font-size:13px;margin:0 0 18px}
+.cdgrp{font-family:Playfair,serif;font-weight:700;font-size:18px;margin:22px 0 8px;
+  border-bottom:1px solid var(--hair);padding-bottom:6px}
+.cdrow{display:grid;grid-template-columns:repeat(auto-fill,minmax(70px,1fr));gap:14px 8px}
+.cdcell{margin:0;text-align:center}
+.cdcell figcaption{font-family:Cousine,monospace;font-size:12px;margin-top:2px}
+.cdrole{display:block;color:var(--lgy);font-size:10px;font-family:Instrument,sans-serif}
+svg.cd{width:100%;height:auto;max-width:64px}
+svg.cd line{stroke:var(--gry);stroke-width:1}
+svg.cd .cddot{fill:var(--ink)}
+svg.cd .cdo{fill:none;stroke:var(--gry);stroke-width:1}
+svg.cd .cdx{fill:var(--gry);font-size:7px;text-anchor:middle;font-family:Instrument,sans-serif}
+svg.cd .cdfr{fill:var(--gry);font-size:7px;font-family:Instrument,sans-serif}
+
 @media (min-width:600px){
   header.top h1{font-size:30px}
   .song h2{font-size:30px}

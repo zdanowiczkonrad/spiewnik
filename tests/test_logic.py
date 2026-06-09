@@ -73,6 +73,62 @@ def test_build_version_zwraca_str():
     assert isinstance(common.build_version(), str)
 
 
+def test_chords_json_poprawny():
+    data = common.load_chords()
+    assert data["voicings"], "brak wojsingów"
+    for key, voicings in data["voicings"].items():
+        for v in voicings:
+            f = v["frets"]
+            assert len(f) == 6, f"{key}/{v['name']}: nie 6 strun"
+            for x in f:
+                assert x == "x" or (isinstance(x, int) and 0 <= x <= 24), \
+                    f"{key}/{v['name']}: zła wartość progu {x!r}"
+
+
+@pytest.mark.parametrize("raw,canon", [
+    ("Am", "a"), ("Dm", "d"), ("C#m7", "cis7"), ("C#7", "Cis7"), ("F#", "Fis"),
+    ("F#m11", "fis11"), ("G#m7", "gis7"), ("G#m7b5", "gis7b5"), ("Bm7", "h7"),
+    ("B7", "B7"), ("Cmaj7", "Cmaj7"), ("Bsus4", "Bsus4"), ("Esus2", "Esus2"),
+    ("g", "g"), ("cis7", "cis7"), ("H", "H"),
+])
+def test_canon_chord(raw, canon):
+    assert common.canon_chord(raw) == canon
+
+
+@pytest.mark.parametrize("pl,us", [
+    ("cis7", "C#m7"), ("Cis7", "C#7"), ("h7", "Bm7"), ("B7", "Bb7"),
+    ("a", "Am"), ("e", "Em"), ("G", "G"), ("h", "Bm"), ("fis", "F#m"), ("H", "B"),
+])
+def test_to_american(pl, us):
+    assert common.to_american(pl) == us
+
+
+@pytest.mark.parametrize("tok,canon", [
+    ("D/F#", "D/Fis"), ("h-A-h", "h-A-h"), ("(h)", "(h)"), ("G(7)", "G(7)"),
+    ("/bis", "/bis"),   # marker powtórzenia — NIE akord, zostaje nietknięty
+    ("/x2", "/x2"), ("|", "|"),
+])
+def test_map_chord_token(tok, canon):
+    assert common.map_chord_token(tok, common.canon_chord) == canon
+
+
+def test_baza_bez_notacji_miedzynarodowej():
+    # po unifikacji w chwytach nie powinno być „#" ani międzynarodowego minoru (Am/Dm/Bm…)
+    import glob, re, os
+    bad = []
+    for p in glob.glob(os.path.join(common.DB, "*.md")):
+        if os.path.basename(p).startswith("_"): continue
+        s = common.parse_md(p)
+        for line in s["body"].split("\n"):
+            toks = [t for t in re.split(r"(\s+)", line) if t != ""]
+            ns = [i for i, t in enumerate(toks) if t.strip()]
+            for i in common.chord_run(toks, ns):
+                t = toks[i]
+                if common.map_chord_token(t, common.canon_chord) != t:
+                    bad.append(f"{os.path.basename(p)}: {t}")
+    assert not bad, "nieskanoniczne chwyty w bazie:\n" + "\n".join(bad)
+
+
 @pytest.mark.parametrize("raw,expected", [
     ("G", "G-dur"),
     ("e", "e-moll"),

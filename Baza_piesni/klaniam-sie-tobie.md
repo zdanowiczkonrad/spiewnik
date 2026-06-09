@@ -1,15 +1,15 @@
 # Kłaniam się Tobie
 
 - **Przeznaczenie:** uwielbienie / dziękczynienie / adoracja
-- **Tonacja:** cis (C#m7)
+- **Tonacja:** cis
 
 ```
-C#m7 Bsus4  Esus2 G#m7         A5
+cis7 Bsus4  Esus2 gis7         A5
 Kłaniam się Tobie, Przedwieczny Boże,
 Którego niebo objąć nie może;
-E           F#m11/E D#dim G#m7b5 C#m7
+E           fis11/E Disdim gis7b5 cis7
 Ja, proch mizerny, przed Twą możnością
-A#dim      A/B C#m7 F#m11 G#m7   A5  (Bsus)
+Aisdim      A/B cis7 fis11 gis7   A5  (Bsus)
 Z wojskiem Aniołów klękam z radością.
 
 2. Tu Stwórcę swego wiarą wyznaję,

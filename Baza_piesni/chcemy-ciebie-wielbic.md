@@ -4,9 +4,9 @@
 - **Tonacja:** G
 
 ```
-Chcemy Ciebie wielbić, szukać Twojej twarzy        G D/F#
+Chcemy Ciebie wielbić, szukać Twojej twarzy        G D/Fis
 wcześnie o poranku i gdy noc kładzie cień          e A h
-Tobie chcemy śpiewać, wznieść niebiańską chwałę    G D/F#
+Tobie chcemy śpiewać, wznieść niebiańską chwałę    G D/Fis
 kładąc nasze życie, byś je stale zmieniać mógł.     e A D
 
 Niech się wzniesie dziś Twa chwała, o Panie nasz!   D G A h | D G A
