@@ -11,7 +11,7 @@ przespać poranka                   G A
 
 My, którzy wszystko liczymy,       D A h
 Ciebie mamy za darmo.              G D | G A
-Dajesz nam siebie w całości        G A h G
+Dajesz nam siebie w całości        D A h G
 Jesteś taki rozrzutny, Panie       D A
 
 Mało, że do nas przyszedłeś,

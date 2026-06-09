@@ -112,7 +112,7 @@ __DOWNLOADS__
   </div>
   <article id="chordsbody" class="chordsbody"></article>
 </div>
-<script>window.SONGS=__DATA__;window.CHORDS=__CHORDS__;</script>
+<script>window.SONGS=__DATA__;window.CHORDS=__CHORDS__;window.CHORD_SHAPES=__SHAPES__;</script>
 <script src="app.js"></script>
 </body>
 </html>
@@ -123,11 +123,12 @@ def main():
     songs = build_songs()
     pdf_names = copy_assets()
     ver = ("wersja " + html.escape(BUILD_VERSION)) if BUILD_VERSION else ""
-    chords = load_chords().get("voicings", {})
+    cdata = load_chords()
     page = (PAGE
             .replace("__DOWNLOADS__", downloads_html(pdf_names))
             .replace("__VERSION__", ver)
-            .replace("__CHORDS__", json.dumps(chords, ensure_ascii=False, separators=(",", ":")))
+            .replace("__CHORDS__", json.dumps(cdata.get("voicings", {}), ensure_ascii=False, separators=(",", ":")))
+            .replace("__SHAPES__", json.dumps(cdata.get("chords", {}), ensure_ascii=False, separators=(",", ":")))
             .replace("__DATA__", json.dumps(songs, ensure_ascii=False, separators=(",", ":"))))
     with open(os.path.join(DOCS, "index.html"), "w", encoding="utf-8") as f:
         f.write(page)

@@ -188,6 +188,35 @@
   $("#toggleNotation").addEventListener("click", toggleNotation);
   $("#toggleNotationCd").addEventListener("click", toggleNotation);
 
+  // -- hover/tap: diagram pojedynczego akordu nad chwytem w pieśni --
+  var SHAPES = window.CHORD_SHAPES || {};
+  function chordKey(pl) {                               // token chwytu → klucz bazowy (bez nawiasów, bas, sekwencji)
+    var t = (pl || "").replace(/[()\[\]]/g, "").split(/[/\-]/)[0];
+    return t.replace(/[.,;]+$/, "");
+  }
+  var pop = document.createElement("div"); pop.className = "chordpop"; pop.hidden = true;
+  document.body.appendChild(pop);
+  function showPop(el) {
+    var pl = el.dataset.pl !== undefined ? el.dataset.pl : el.textContent;
+    var shape = SHAPES[chordKey(pl)];
+    if (!shape) { hidePop(); return; }
+    pop.innerHTML = '<div class="chordpop-name">' + escapeHtml(el.textContent) + '</div>' + chordSVG(shape);
+    pop.hidden = false; pop._for = el;
+    var r = el.getBoundingClientRect(), pw = pop.offsetWidth, ph = pop.offsetHeight;
+    pop.style.left = Math.min(innerWidth - pw - 6, Math.max(6, r.left + r.width / 2 - pw / 2)) + "px";
+    var y = r.top - ph - 8; pop.style.top = (y < 6 ? r.bottom + 8 : y) + "px";
+  }
+  function hidePop() { pop.hidden = true; pop._for = null; }
+  songEl.addEventListener("mouseover", function (e) { var el = e.target.closest(".ch"); if (el) showPop(el); });
+  songEl.addEventListener("mouseout", function (e) { if (e.target.closest(".ch")) hidePop(); });
+  songEl.addEventListener("click", function (e) {        // tap (mobile): przełącz
+    var el = e.target.closest(".ch"); if (!el) return;
+    if (pop.hidden || pop._for !== el) showPop(el); else hidePop();
+    e.stopPropagation();
+  });
+  document.addEventListener("click", hidePop);
+  songview.addEventListener("scroll", hidePop, true);
+
   // ---- init ----
   setSize(curSize());
   renderFilters();

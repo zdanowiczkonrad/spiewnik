@@ -94,6 +94,13 @@ svg.cd .cdo{fill:none;stroke:var(--gry);stroke-width:1}
 svg.cd .cdx{fill:var(--gry);font-size:7px;text-anchor:middle;font-family:Instrument,sans-serif}
 svg.cd .cdfr{fill:var(--gry);font-size:7px;font-family:Instrument,sans-serif}
 
+/* ---------- popover diagramu (hover/tap na chwyt) ---------- */
+.body .ch{cursor:help}
+.chordpop{position:fixed;z-index:50;pointer-events:none;background:var(--bg);border:1px solid var(--ink);
+  border-radius:8px;padding:6px 8px 4px;box-shadow:0 4px 16px rgba(0,0,0,.18);text-align:center}
+.chordpop svg.cd{width:60px;height:auto}
+.chordpop-name{font-family:Cousine,monospace;font-weight:700;font-size:13px;margin-bottom:1px}
+
 @media (min-width:600px){
   header.top h1{font-size:30px}
   .song h2{font-size:30px}

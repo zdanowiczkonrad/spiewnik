@@ -76,13 +76,33 @@ def test_build_version_zwraca_str():
 def test_chords_json_poprawny():
     data = common.load_chords()
     assert data["voicings"], "brak wojsingów"
-    for key, voicings in data["voicings"].items():
-        for v in voicings:
-            f = v["frets"]
-            assert len(f) == 6, f"{key}/{v['name']}: nie 6 strun"
-            for x in f:
-                assert x == "x" or (isinstance(x, int) and 0 <= x <= 24), \
-                    f"{key}/{v['name']}: zła wartość progu {x!r}"
+    shapes = [v["frets"] for vs in data["voicings"].values() for v in vs]
+    shapes += list(data.get("chords", {}).values())
+    for f in shapes:
+        assert len(f) == 6, f"nie 6 strun: {f}"
+        for x in f:
+            assert x == "x" or (isinstance(x, int) and 0 <= x <= 24), f"zła wartość progu {x!r} w {f}"
+
+
+def test_kazdy_akord_bazy_ma_ksztalt():
+    # każdy chwyt użyty w bazie ma diagram w chords.json['chords'] (pokrycie hovera)
+    import glob, os, re
+    shapes = common.load_chords().get("chords", {})
+    brak = set()
+    for p in glob.glob(os.path.join(common.DB, "*.md")):
+        if os.path.basename(p).startswith("_"): continue
+        s = common.parse_md(p)
+        for line in s["body"].split("\n"):
+            toks = [t for t in re.split(r"(\s+)", line) if t != ""]
+            ns = [i for i, t in enumerate(toks) if t.strip()]
+            for i in common.chord_run(toks, ns):
+                t = toks[i].strip()
+                if common._MARK.fullmatch(t) or common._REP.fullmatch(t) or common.is_section_label(t):
+                    continue
+                base = re.sub(r"[()\[\]]", "", t).split("/")[0].split("-")[0].strip(".,;")
+                if base and common.is_chord(base) and base not in shapes:
+                    brak.add(base)
+    assert not brak, "akordy bez kształtu w chords.json: " + ", ".join(sorted(brak))
 
 
 @pytest.mark.parametrize("raw,canon", [
