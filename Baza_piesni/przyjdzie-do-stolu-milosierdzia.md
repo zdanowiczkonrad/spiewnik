@@ -1,15 +1,15 @@
 # Przyjdzie do stołu miłosierdzia
 
 - **Przeznaczenie:** na ofiarowanie
-- **Tonacja:** E
+- **Tonacja:** D
 
 ```
-   Przyjdźcie do stołu miłosierdzia   E H7 cis A
-   gdzie Ciało i Krew Pana jest.   E H7 cis A (H)
-   Wszyscy spragnieni, przybądźcie
-   Nakarmić dusze swe.
-   Przyjdźmy, bo Pan nas zaprasza,
-   wyciąga przebitą dłoń.
-   Syćmy się Ciałem Chrystusa,
-   bo przez nie nam życie dał On.
+   Przyjdźcie do stołu miłosierdzia   D A h
+   gdzie Ciało i Krew Pana jest.   G A D
+   Wszyscy spragnieni, przybądźcie D A h
+   Nakarmić dusze swe. G A D
+   Przyjdźmy, bo Pan nas zaprasza, fis h
+   wyciąga przebitą dłoń. G D A
+   Syćmy się Ciałem Chrystusa, D A h
+   bo przez nie nam życie dał On. G A D
 ```

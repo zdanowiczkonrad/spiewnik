@@ -3,13 +3,11 @@
 - **Przeznaczenie:** uwielbienie / dziękczynienie / adoracja
 - **Tonacja:** a
 
-> [Grasz od a-moll. Poniżej wariant w D — do transpozycji na a-moll.]
-
 ```
-Jak dobrze jest dziękować Ci, Panie,   D e A7
-I śpiewać psalm Twojemu Imieniu,   e G Fis
-I opowiadać rano Twoje miłosierdzie,   De
-A w nocy wierność Twoją   D
-Przy dziesięciostrunnej harfie   eh
-I lutni, i dźwięcznej cytrze.   e h Fis A7
+Jak dobrze jest dziękować Ci, Panie,   a d
+I śpiewać psalm Twojemu Imieniu,   G C E7
+I opowiadać rano Twoje miłosierdzie,   a d
+A w nocy wierność Twoją   a
+Przy dziesięciostrunnej harfie   E F 
+I lutni, i dźwięcznej cytrze.   d a E
 ```

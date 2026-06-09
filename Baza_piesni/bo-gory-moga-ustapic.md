@@ -9,7 +9,7 @@ i pagórki się zachwiać, i pagórki się zachwiać. A D A D
 
 h                D
 Ale miłość moja, miłość moja,
-D                          E
+D/fis                      E
 nigdy nie odstąpi od Ciebie,
 A D A D
 mówi Pan.

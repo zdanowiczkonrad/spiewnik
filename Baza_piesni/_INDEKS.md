@@ -1,6 +1,6 @@
 # Baza pieśni — indeks
 
-Łącznie pieśni: **100**  ·  z chwytami: **100**  ·  do uzupełnienia: **0**.
+Łącznie pieśni: **104**  ·  z chwytami: **104**  ·  do uzupełnienia: **0**.
 
 > `Baza_piesni/*.md` to źródło prawdy. Edytuj pliki wprost; potem `python3 zrodla/pdf_full.py` i `python3 zrodla/pdf.py`.
 
@@ -25,7 +25,9 @@
 | Com przyrzekł Bogu | [com-przyrzekl-bogu.md](com-przyrzekl-bogu.md) |
 | Cóż Ci Jezu damy | [coz-ci-jezu-damy.md](coz-ci-jezu-damy.md) |
 | Części stałe | [czesci-stale.md](czesci-stale.md) |
+| Daj mi serce swe | [daj-mi-serce-swe.md](daj-mi-serce-swe.md) |
 | Do Ciebie, Panie | [do-ciebie-panie.md](do-ciebie-panie.md) |
+| Do stołu przyjdź | [do-stolu-przyjdz.md](do-stolu-przyjdz.md) |
 | Dotknij, Panie, moich oczu | [dotknij-panie-moich-oczu.md](dotknij-panie-moich-oczu.md) |
 | Duch miłości, wylewaj się na nas | [duch-milosci-wylewaj-sie-na-nas.md](duch-milosci-wylewaj-sie-na-nas.md) |
 | Duchu Święty, tchnienie Ojca | [duchu-swiety-tchnienie-ojca.md](duchu-swiety-tchnienie-ojca.md) |
@@ -35,6 +37,7 @@
 | Idzie mój Pan | [idzie-moj-pan.md](idzie-moj-pan.md) |
 | Jak dobrze jest dziękować Ci | [jak-dobrze-jest-dziekowac-ci.md](jak-dobrze-jest-dziekowac-ci.md) |
 | Jak ożywczy deszcz | [jak-ozywczy-deszcz.md](jak-ozywczy-deszcz.md) |
+| Jak wielki jest Bóg | [jak-wielki-jest-bog.md](jak-wielki-jest-bog.md) |
 | Jeden chleb | [jeden-chleb.md](jeden-chleb.md) |
 | Jesteś Królem | [jestes-krolem.md](jestes-krolem.md) |
 | Jesteś, Panie, winnym krzewem | [jestes-panie-winnym-krzewem.md](jestes-panie-winnym-krzewem.md) |
@@ -95,6 +98,7 @@
 | Ukaż mi, Panie, swą twarz | [ukaz-mi-panie-swa-twarz.md](ukaz-mi-panie-swa-twarz.md) |
 | Ukojenie | [ukojenie.md](ukojenie.md) |
 | Uwielbiam imię Twoje, Panie | [uwielbiam-imie-twoje-panie.md](uwielbiam-imie-twoje-panie.md) |
+| Umiłowany | [umilowany.md](umilowany.md) |
 | W cieniu Twoich rąk | [w-cieniu-twoich-rak.md](w-cieniu-twoich-rak.md) |
 | W lekkim powiewie | [w-lekkim-powiewie.md](w-lekkim-powiewie.md) |
 | W Tobie jest światło | [w-tobie-jest-swiatlo.md](w-tobie-jest-swiatlo.md) |

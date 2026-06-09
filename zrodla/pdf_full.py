@@ -2,7 +2,7 @@
 # Pełny śpiewnik (wszystkie pieśni z bazy). Flagi: --a5 (kieszonkowy), --plain (same teksty, bez chwytów).
 import os, re, sys
 from fpdf.enums import XPos, YPos
-from common import (INK, GRY, LGY, HAIR, CHORDCOL, fold, fmt_key, is_chord,
+from common import (INK, GRY, LGY, HAIR, CHORDCOL, fold, fmt_key, chord_run,
                     strip_chords, load_all, add_fonts, SongbookPDF, ROOT)
 from plan_data import EVENT
 
@@ -32,10 +32,7 @@ PW=W-2*ML
 def draw_body_line(pdf, raw, bs, lh):
     toks=[t for t in re.split(r"(\s+)", raw) if t!=""]
     ns=[i for i,t in enumerate(toks) if t.strip()]
-    chord=set()
-    for i in reversed(ns):                       # akordy = końcowy ciąg tokenów-akordów
-        if is_chord(toks[i]): chord.add(i)
-        else: break
+    chord=chord_run(toks, ns)                    # akordy: końcowy ciąg tokenów lub linia-legenda
     pdf.set_x(ML)
     for i,t in enumerate(toks):
         if i in chord: pdf.set_font("mono","B",bs); pdf.set_text_color(*CHORDCOL)

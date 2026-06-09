@@ -4,15 +4,15 @@
 - **Tonacja:** C
 
 ```
-    C    d7 A7 d  G    C  E7
+    C       d       G    C  E7
 1. Wszystko Tobie oddać pragnę
     a      F   C  G  G7 C
    I dla Ciebie tylko żyć.
-   C         d7 A7  d     C    E7
+   C         d     G      C  E
    Chcę Cię, Jezu, kochać wiernie,
      a       F C   G   G7 C
    Dzieckiem Twoim zawsze być!
-      C  e7  a A7 d7   G       G7    C  E7
+      C  e7  a   d7   G       G7    C  E7
 Ref. Serce moje weź, niech Twą śpiewa cześć,
      a     F C   F     C     G    G7   C
      Serce moje, duszę moją, Panie Jezu, weź.

@@ -6,27 +6,21 @@
 ```
  E
 Otwórz me oczy, o Panie
- H
+ gis
 Otwórz me oczy i serce
-               A
+               A (a)
 Chcę widzieć Ciebie
                E
 Chcę widzieć Ciebie
 
-         H             cis7
+         H             cis
 Wywyższonego widzieć chcę
  A                             H
 Ujrzeć Ciebie w blasku Twej chwały
- H                  cis7
+ gis                  cis
 Wylej Swą miłość i moc, gdy śpiewam
-   A7              H
-Święty, Święty, Święty
-   E
-Święty, Święty, Święty
-   H
-Święty, Święty, Święty
-   A
-Święty, Święty, Święty
+   A              H
+Święty, Święty, Święty x3
                E
 Chcę widzieć Ciebie
 ```

@@ -1,14 +1,14 @@
 # Bądźże pozdrowiona Hostio żywa
 
 - **Przeznaczenie:** klasyczne / tradycyjne
-- **Tonacja:** F
+- **Tonacja:** D
 
 ```
-Bądźże pozdrowiona Hostyo żywa!          F C F
-W której Jezus Chrystus Bóstwo ukrywa.   F C F
+Bądźże pozdrowiona Hostyo żywa!          D A D
+W której Jezus Chrystus Bóstwo ukrywa.   D A D
 
-/ Witaj Jezu, Synu Maryi,                F C
-  Tyś jest Bóg prawdziwy w świętej Hostyi.   g F C F   /bis
+/ Witaj Jezu, Synu Maryi,                D G D A
+  Tyś jest Bóg prawdziwy w świętej Hostyi.   e D A D   /bis
 
 2. Bądźże pozdrowione drzewo żywota,
    Niech kwitnie niewinność, anielska cnota.

@@ -34,14 +34,31 @@ def slug(t):
 # --- rozpoznanie chwytów (notacja polska A-H / a-h) ---
 _cACC=r"(?:is|es|#|b)"; _cROOT=r"[A-Ha-h]"+_cACC+"?"
 _cSUF=r"(?:maj7|maj|m11|m9|m7|m6|m|sus2|sus4|sus|dim|aug|add9|add|13|11|9|7|6|5|4|2|0|b5|\+)"
-_CLUSTER=re.compile(r"^(?:"+_cROOT+_cSUF+r"*(?:/"+_cROOT+_cSUF+r"*)?)+$")
+_cCHORD=_cROOT+_cSUF+r"*(?:/"+_cROOT+_cSUF+r"*)*"          # akord (+ opcjonalny bas po „/", np. G/h)
+_CLUSTER=re.compile(r"^/?"+_cCHORD+r"(?:-"+_cCHORD+r")*$")  # ciąg akordów łączony „-", z opcjonalnym wiodącym „/"
 _MARK=re.compile(r"^(?:[|/()\[\]:]+|/?x\d+|\d+x)$")
+# etykieta sekcji w linii-legendzie chwytów (NIE każde słowo z dwukropkiem — tylko nazwy sekcji)
+_LABEL=re.compile(r"^(?:zwrotka|zwr|zw|ref|refren|refr|bridge|most|intro|outro|coda|pre|prechorus|finał|final|solo|interludium)\.?:$", re.I)
 def is_chord(tok):
     t=tok.strip()
     if not t: return False
     if _MARK.fullmatch(t): return True
-    core=t.strip("()[].,;")
+    core=re.sub(r"[()\[\]]","",t).strip(".,;")             # zdejmij nawiasy (G(7)→G7, (h)→h) i interpunkcję
     return bool(core) and bool(re.search(r"[A-Ha-h]",core)) and bool(_CLUSTER.fullmatch(core))
+
+def chord_run(toks, ns):
+    """Indeksy tokenów-akordów do pokolorowania/usunięcia.
+    Domyślnie: KOŃCOWY ciąg tokenów-akordów (chwyty dopisane na końcu wersu).
+    Wyjątek — linia-legenda (wszystkie nie-akordy to etykiety „zwrotka:"/„ref.:"):
+    kolorujemy wszystkie akordy w linii."""
+    chordset={i for i in ns if is_chord(toks[i])}
+    if chordset and all(_LABEL.match(toks[i]) for i in ns if i not in chordset):
+        return chordset
+    run=set()
+    for i in reversed(ns):
+        if is_chord(toks[i]): run.add(i)
+        else: break
+    return run
 
 # --- usuwanie chwytów (wersje bez chwytów) — obsługuje markery powtórzeń (/x2, (bis), x4) ---
 _REP=re.compile(r"(?i)^/?\(?(?:x?\d+|\d+x|\d+/\d+|x|bis|ba[- ]?ba|baba)\)?$")
@@ -51,14 +68,16 @@ def strip_chords(body):
         if re.match(r"(?i)^\s*capo\b", raw): continue
         toks=[t for t in re.split(r"(\s+)", raw) if t!=""]
         ns=[i for i,t in enumerate(toks) if t.strip()]
-        run=[]; saw=False
+        chordset={i for i in ns if is_chord(toks[i])}
+        # linia-legenda lub czysto akordowa → pomiń w wersji bez chwytów
+        if chordset and all(_LABEL.match(toks[i]) for i in ns if i not in chordset): continue
+        run=set(); saw=False
         for i in reversed(ns):
             t=toks[i].strip()
-            if is_chord(t): run.append(i); saw=True
-            elif _REP.fullmatch(t): run.append(i)
+            if is_chord(t): run.add(i); saw=True
+            elif _REP.fullmatch(t): run.add(i)
             else: break
-        if not saw: run=[]
-        run=set(run)
+        if not saw: run=set()
         line="".join(t for i,t in enumerate(toks) if i not in run).rstrip()
         if line.strip()=="": continue
         out.append(line)
