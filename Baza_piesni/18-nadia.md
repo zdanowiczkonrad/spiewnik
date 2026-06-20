@@ -6,6 +6,7 @@
 - Birds of a Feather (Billie Eilish)
 - I ciebie też, bardzo (Męskie Granie)
 - Perfect (Ed Sheeran)
+- Pszczółka Nadia
 - Say a Little Prayer (Aretha Franklin)
 - Somewhere Over the Rainbow (IZ)
 - Sto lat
