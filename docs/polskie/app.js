@@ -68,7 +68,7 @@
   function openSong(nr) {
     var s = byNr[nr];
     if (!s) { closeSong(); return; }
-    var lyricsOnly = localStorage.getItem("lyricsOnly") === "1";
+    var lyricsOnly = localStorage.getItem("lyricsOnly") !== "0";   // domyślnie bez chwytów; pokazujemy tylko po jawnym włączeniu
     songEl.innerHTML =
       '<span class="num">' + s.nr + '</span>'
       + '<h2>' + escapeHtml(s.title) + '</h2>'

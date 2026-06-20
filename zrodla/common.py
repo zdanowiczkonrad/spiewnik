@@ -39,7 +39,7 @@ def slug(t):
     return re.sub(r"[^a-z0-9]+","-",t).strip("-")
 
 # --- rozpoznanie chwytów (notacja polska A-H / a-h) ---
-_cACC=r"(?:is|es|#|b)"; _cROOT=r"[A-Ha-h]"+_cACC+"?"
+_cACC=r"(?:is|es|s(?!us)|#|b)"; _cROOT=r"[A-Ha-h]"+_cACC+"?"  # „s" = polski bemol Es/As (ale nie „sus")
 _cSUF=r"(?:maj7|maj|m11|m9|m7|m6|m|sus2|sus4|sus|dim|aug|add9|add|13|11|9|7|6|5|4|2|0|b5|\+)"
 _cCHORD=_cROOT+_cSUF+r"*(?:/"+_cROOT+_cSUF+r"*)*"          # akord (+ opcjonalny bas po „/", np. G/h)
 _CLUSTER=re.compile(r"^/?"+_cCHORD+r"(?:-"+_cCHORD+r")*$")  # ciąg akordów łączony „-", z opcjonalnym wiodącym „/"
