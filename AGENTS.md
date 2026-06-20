@@ -19,12 +19,15 @@ nie widać wprost z kodu.
 
 - **`Baza_piesni/**/*.md` to jedyne źródło prawdy.** Pieśni dodaje się i poprawia WPROST w plikach
   `.md`. Generatory tylko je czytają.
-- **Kolekcje (typy śpiewnika).** Baza dzieli się na katalogi-kolekcje (`religijne/`, `18-nadia/`…),
-  skonfigurowane w `zrodla/books.py` (`BOOKS`). `load_all`/`load_by_title` przyjmują `(db, recursive)`
-  i domyślnie czytają `common.REL` (= `Baza_piesni/religijne`), więc religijne generatory (`pdf.py`,
-  `pdf_plain.py`, `pdf_lud.py`) działają bez argumentów. `pdf_full.py` i `site.py` biorą kolekcję
-  z `books.py` (`--collection NAZWA`). Kolekcja może mieć podkatalogi (`18-nadia/polskie`,
-  `…/zagraniczne`) — wtedy `recursive=True`. Nowy śpiewnik = wpis w `BOOKS`, nie nowy generator.
+- **Kolekcje (typy śpiewnika).** Baza dzieli się na kolekcje skonfigurowane w `zrodla/books.py`
+  (`BOOKS`), dwojakiego rodzaju: **folderowe** (`src` → `Baza_piesni/<nazwa>/`: `religijne`, `polskie`,
+  `zagraniczne`) i **składanki/listowe** (`list`+`from` → plik `Baza_piesni/18-nadia.md` z samymi
+  tytułami, zbierany po tytule z kolekcji `from`; treść NIE jest kopiowana). Pieśni kolekcji daje
+  `books.load_book(book) → (songs, missing)` — używają go `pdf_full.py`, `site.py`, `generuj.py`;
+  nie wczytuj bazy ręcznie. Religijne generatory (`pdf.py`, `pdf_plain.py`, `pdf_lud.py`) nadal idą
+  przez `load_by_title()` (domyślnie `common.REL`). Każda kolekcja ma `slug` (URL pod `docs/<slug>/`,
+  `religijne` = root) i `nav_label` (linki w stopce do innych śpiewników, względne URL-e z `rel_url`).
+  Nowy śpiewnik = wpis w `BOOKS`, nie nowy generator.
 - **Pułapka H/B przy imporcie tabów pop.** Samotne `B` w zapisie międzynarodowym = H (B-dur);
   `canon_chord` traktuje samotne `B` jak Bb (polskie B), więc po `unify_notation.py` ręcznie zamień
   takie `B`→`H` (zob. `szampan-sanah.md`). `Bb`→`B`, `Em`→`e`, `C#m`→`cis`, `F#m`→`fis` idą automatem.

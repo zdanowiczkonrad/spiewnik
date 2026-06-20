@@ -4,17 +4,18 @@
 import os, re, sys
 from fpdf.enums import XPos, YPos
 from common import (INK, GRY, LGY, HAIR, CHORDCOL, fold, fmt_key, chord_run,
-                    strip_chords, load_all, add_fonts, SongbookPDF, BUILD_VERSION,
+                    strip_chords, add_fonts, SongbookPDF, BUILD_VERSION,
                     draw_site_qr, draw_chord_index)
-from books import get_book, DEFAULT_BOOK
+from books import get_book, load_book, DEFAULT_BOOK
 
 # ---------- wybór kolekcji (--collection NAZWA) ----------
 def _arg(flag, default):
     return sys.argv[sys.argv.index(flag)+1] if flag in sys.argv and sys.argv.index(flag)+1<len(sys.argv) else default
 BOOK = get_book(_arg("--collection", DEFAULT_BOOK))
 
-# ---------- wczytanie kolekcji z plików MD ----------
-songs=load_all(BOOK["src"], BOOK["recursive"])
+# ---------- wczytanie kolekcji (folderowej lub składanki po tytułach) ----------
+songs, missing = load_book(BOOK)
+for t in missing: print("[POMINIĘTO — brak w bazie]", t)
 content=sorted([s for s in songs if not s["stub"]], key=lambda s: fold(s["title"]))
 stubs  =sorted([s for s in songs if s["stub"]],     key=lambda s: fold(s["title"]))
 for i,s in enumerate(content,1): s["nr"]=i

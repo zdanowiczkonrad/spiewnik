@@ -1,18 +1,22 @@
 # -*- coding: utf-8 -*-
 """Testy integralności bazy Baza_piesni (źródło prawdy) i listy SELECTED.
-Baza dzieli się na kolekcje (książki) — patrz zrodla/books.py — każda we własnym katalogu
-(płaskim albo z podkatalogami, np. „18-nadia": polskie/zagraniczne)."""
+Baza dzieli się na kolekcje (książki) — patrz zrodla/books.py. Kolekcje folderowe
+(religijne, polskie, zagraniczne) mają własne pliki; składanki (18-nadia) wskazują tytuły
+z innych kolekcji i są walidowane osobno."""
 import glob, os
 import common
-from books import BOOKS
+from books import BOOKS, load_book
 from plan_data import SELECTED
+
+FOLDER_BOOKS = {n: b for n, b in BOOKS.items() if "src" in b}
+LIST_BOOKS   = {n: b for n, b in BOOKS.items() if "list" in b}
 
 
 def _files(book):
-    return common._md_files(book["src"], book["recursive"])
+    return common._md_files(book["src"], book.get("recursive", False))
 
-# wszystkie pliki ze wszystkich kolekcji
-MD = [p for book in BOOKS.values() for p in _files(book)]
+# wszystkie pliki z kolekcji folderowych
+MD = [p for book in FOLDER_BOOKS.values() for p in _files(book)]
 
 
 def test_baza_niepusta():
@@ -54,12 +58,20 @@ def test_selected_obecne_w_bazie_i_nie_stuby():
 
 
 def test_kazda_kolekcja_niepusta():
-    for name, book in BOOKS.items():
+    for name, book in FOLDER_BOOKS.items():
         assert _files(book), f"pusta kolekcja: {name}"
 
 
 def test_tytuly_unikalne_w_kolekcji():
-    for name, book in BOOKS.items():
+    for name, book in FOLDER_BOOKS.items():
         titles = [common.parse_md(p)["title"] for p in _files(book)]
         dup = {t for t in titles if titles.count(t) > 1}
         assert not dup, f"zdublowane tytuły w kolekcji {name}: " + ", ".join(dup)
+
+
+def test_skladanki_tytuly_obecne_w_bazie():
+    # każda składanka (np. 18-nadia) musi mieć wszystkie tytuły rozwiązane w kolekcjach `from`
+    for name, book in LIST_BOOKS.items():
+        songs, missing = load_book(book)
+        assert not missing, f"składanka {name}: tytuły nieobecne w bazie: " + ", ".join(missing)
+        assert songs, f"pusta składanka: {name}"

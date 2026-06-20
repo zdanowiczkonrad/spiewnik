@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import os, glob
 from common import norm
-from books import BOOKS   # kolekcje (katalogi w Baza_piesni) z konfiguracją źródeł
+from books import BOOKS, load_book   # kolekcje (katalogi w Baza_piesni) z konfiguracją źródeł
 
 # Baza_piesni/*.md jest JEDYNYM źródłem prawdy. Pieśni dodaje się i poprawia WPROST w plikach .md.
 # Ten skrypt nie tworzy ani nie nadpisuje treści — tylko odświeża indeks każdej kolekcji (_INDEKS.md)
@@ -16,14 +16,14 @@ def is_stub_file(p):
     return "⚠️" in open(p, encoding="utf-8").read()
 
 def reindex(name, book):
-    src, rec = book["src"], book["recursive"]
+    src, rec = book["src"], book.get("recursive", False)
     pat = os.path.join(src, "**", "*.md") if rec else os.path.join(src, "*.md")
     files = sorted([p for p in glob.glob(pat, recursive=rec) if not os.path.basename(p).startswith("_")],
                    key=lambda p: norm(read_title(p)))
     rows = []; nstub = 0
     for p in files:
         t = read_title(p); st = is_stub_file(p); nstub += st
-        link = os.path.relpath(p, src)   # względny link (działa też dla podkatalogów polskie/zagraniczne)
+        link = os.path.relpath(p, src)   # względny link (działa też dla podkatalogów)
         rows.append(f"| {t}{' ⚠️' if st else ''} | [{link}]({link}) |")
     idx = [f"# Kolekcja „{name}” — indeks", "",
            f"Łącznie pieśni: **{len(files)}**  ·  z chwytami: **{len(files)-nstub}**  ·  do uzupełnienia: **{nstub}**.", "",
@@ -33,4 +33,8 @@ def reindex(name, book):
     print(f"INDEKS [{name}]: {len(files)} pieśni, stubów: {nstub}")
 
 for name, book in BOOKS.items():
-    reindex(name, book)
+    if "list" in book:                       # składanka po tytułach — nie ma własnych plików, tylko walidacja
+        _, missing = load_book(book)
+        print(f"LISTA  [{name}]: {len(_)} pieśni" + (f", BRAK: {', '.join(missing)}" if missing else ""))
+    else:
+        reindex(name, book)

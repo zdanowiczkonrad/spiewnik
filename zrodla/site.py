@@ -7,8 +7,8 @@ Buduje samodzielny katalog `docs/` z bazy `Baza_piesni/*.md`:
 - pdf/ (kopie wygenerowanych śpiewników do pobrania).
 Linki są względne — działa pod dowolną ścieżką (np. zdanowicz.dev/spiewnik/)."""
 import os, re, sys, json, glob, html, shutil
-from common import ROOT, FONTS, fold, fmt_key, chord_run, is_section_label, BUILD_VERSION, load_all, load_chords
-from books import BOOKS, DEFAULT_BOOK, get_book
+from common import ROOT, FONTS, fold, fmt_key, chord_run, is_section_label, BUILD_VERSION, load_chords
+from books import BOOKS, DEFAULT_BOOK, get_book, load_book, site_dir, rel_url
 
 WEB  = os.path.join(ROOT, "web")
 DOCS = os.path.join(ROOT, "docs")
@@ -37,7 +37,9 @@ def render_body_html(body):
     return "".join(out)
 
 def build_songs(book):
-    songs = [s for s in load_all(book["src"], book["recursive"]) if not s["stub"]]
+    loaded, missing = load_book(book)
+    for t in missing: print("[POMINIĘTO — brak w bazie]", t)
+    songs = [s for s in loaded if not s["stub"]]
     songs.sort(key=lambda s: fold(s["title"]))
     data = []
     for i, s in enumerate(songs, 1):
@@ -52,7 +54,7 @@ def build_songs(book):
     return data
 
 def copy_assets(book):
-    site = book["site_dir"]
+    site = site_dir(book)
     os.makedirs(os.path.join(site, "fonts"), exist_ok=True)
     os.makedirs(os.path.join(site, "pdf"), exist_ok=True)
     for f in ("style.css", "app.js"):
@@ -73,6 +75,13 @@ def downloads_html(pdf_names):
         for n in pdf_names)
     return '<section class="downloads"><div class="wrap"><h2>Do pobrania (PDF)</h2>%s</div></section>' % items
 
+def booknav_html(current):
+    """Linki w stopce do pozostałych śpiewników (względne URL-e między kolekcjami)."""
+    cur = BOOKS[current]
+    links = ['<a href="%s">%s</a>' % (rel_url(cur["slug"], b["slug"]), html.escape(b["nav_label"]))
+             for name, b in BOOKS.items() if name != current]
+    return '<nav class="booknav"><span>Inne śpiewniki:</span> %s</nav>' % " ".join(links)
+
 PAGE = """<!doctype html>
 <html lang="pl">
 <head>
@@ -92,7 +101,7 @@ PAGE = """<!doctype html>
 </div></header>
 <main class="wrap"><div id="list" class="list"></div></main>
 __DOWNLOADS__
-<footer class="sitever"><div class="wrap">__VERSION__</div></footer>
+<footer class="sitever"><div class="wrap">__BOOKNAV__<span class="ver">__VERSION__</span></div></footer>
 <div id="songview" class="songview" hidden>
   <div class="songbar">
     <button id="back" class="iconbtn" aria-label="Wróć do listy">‹ Lista</button>
@@ -121,7 +130,7 @@ __DOWNLOADS__
 """
 
 def build_site(name, book):
-    site = book["site_dir"]
+    site = site_dir(book)
     os.makedirs(site, exist_ok=True)
     songs = build_songs(book)
     pdf_names = copy_assets(book)
@@ -129,6 +138,7 @@ def build_site(name, book):
     cdata = load_chords()
     page = (PAGE
             .replace("__TITLE__", html.escape(book["site_title"]))
+            .replace("__BOOKNAV__", booknav_html(name))
             .replace("__DOWNLOADS__", downloads_html(pdf_names))
             .replace("__VERSION__", ver)
             .replace("__CHORDS__", json.dumps(cdata.get("voicings", {}), ensure_ascii=False, separators=(",", ":")))

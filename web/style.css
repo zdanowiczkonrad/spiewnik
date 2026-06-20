@@ -70,6 +70,11 @@ header.top h1{font-family:Playfair,serif;font-weight:700;font-size:26px;margin:0
 
 .sitever{padding:24px 0 40px}
 .sitever .wrap{color:var(--lgy);font-size:12px;text-align:center}
+.sitever .ver{display:block;margin-top:10px}
+.booknav{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:baseline;justify-content:center;font-size:13px}
+.booknav span{color:var(--lgy)}
+.booknav a{color:var(--ink);text-decoration:none;border-bottom:1px solid var(--hair);padding-bottom:1px}
+.booknav a:hover{border-bottom-color:var(--ink)}
 
 /* ---------- nagłówek: wiersz z przyciskiem Akordy ---------- */
 .toprow{display:flex;align-items:baseline;justify-content:space-between;gap:12px}

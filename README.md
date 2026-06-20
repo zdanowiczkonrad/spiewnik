@@ -10,13 +10,18 @@ Markdown, a skrypty Pythona składają z nich gotowe śpiewniki w kilku warianta
 Pieśni poprawia się i dodaje **wprost w plikach `.md`**, a potem regeneruje PDF-y.
 Generatory nigdy nie nadpisują bazy.
 
-Baza dzieli się na **kolekcje** (typy śpiewnika) — każda to osobny katalog w `Baza_piesni/`:
+Baza dzieli się na **kolekcje** (typy śpiewnika), zdefiniowane w [`zrodla/books.py`](zrodla/books.py)
+(`BOOKS`). Dwa rodzaje:
 
-- `Baza_piesni/religijne/` — pieśni religijne (kolekcja domyślna, pełna baza),
-- `Baza_piesni/18-nadia/` — śpiewnik na 18. urodziny (z podkatalogami `polskie/` i `zagraniczne/`).
+- **folderowe** — katalog `Baza_piesni/<nazwa>/` z plikami `.md`:
+  `religijne/`, `polskie/`, `zagraniczne/`,
+- **składanki (listowe)** — plik `.md` z samymi TYTUŁAMI pieśni, np.
+  [`Baza_piesni/18-nadia.md`](Baza_piesni/18-nadia.md) — śpiewnik na 18. urodziny zbierany po tytule
+  z `polskie` + `zagraniczne` (bez kopiowania treści; źródłem prawdy pozostają pliki w tych folderach).
 
-Konfiguracja kolekcji (źródło, okładka, nazwy plików, miejsce publikacji) mieszka w
-[`zrodla/books.py`](zrodla/books.py) — **dodanie nowego śpiewnika = jeden wpis w `BOOKS`**, bez
+Każda kolekcja publikuje się pod własnym URL-em (`religijne` w korzeniu `docs/`, reszta w `docs/<slug>/`):
+`/spiewnik/` · `/spiewnik/polskie/` · `/spiewnik/zagraniczne/` · `/spiewnik/18-nadii/`. W stopce każdej
+strony są linki do pozostałych śpiewników. **Dodanie nowego śpiewnika = jeden wpis w `BOOKS`**, bez
 duplikowania logiki układu. Kolekcję wybiera się flagą `--collection NAZWA` (domyślnie `religijne`).
 
 ### Format pliku pieśni
@@ -72,18 +77,18 @@ Flagi `pdf_full.py`: `--a5` (format kieszonkowy A5), `--plain` (same teksty, bez
 `--collection NAZWA` (kolekcja z `books.py`; domyślnie `religijne`). Cztery warianty pełnego
 śpiewnika powstają z kombinacji `--a5`/`--plain`.
 
-Przykład — śpiewnik na 18. urodziny (z chwytami i bez), plus strona web pod `docs/18-nadia/`:
+Przykład — śpiewnik na 18. urodziny (z chwytami i bez), plus strona web pod `docs/18-nadii/`:
 
 ```bash
 cd zrodla
-python3 generuj.py                            # odśwież indeksy kolekcji
-python3 pdf_full.py --collection 18-nadia     # PDF z chwytami → 18-nadia/
+python3 generuj.py                            # odśwież indeksy kolekcji (+ walidacja składanek)
+python3 pdf_full.py --collection 18-nadia     # PDF z chwytami → 18-nadii/
 python3 pdf_full.py --collection 18-nadia --plain   # PDF bez chwytów
-python3 site.py                               # zbuduj wszystkie strony (docs/ + docs/18-nadia/)
+python3 site.py                               # zbuduj wszystkie strony (docs/ + docs/<slug>/)
 ```
 
 `site.py` bez argumentów buduje stronę dla **każdej** kolekcji (główna → `docs/`, pozostałe →
-`docs/<nazwa>/`); `--collection NAZWA` ogranicza build do jednej kolekcji.
+`docs/<slug>/`); `--collection NAZWA` ogranicza build do jednej kolekcji.
 
 Wspólna logika wszystkich generatorów (parsowanie bazy, rozpoznawanie/usuwanie chwytów,
 tonacja, fonty, bazowa klasa PDF, ścieżki) mieszka w [`zrodla/common.py`](zrodla/common.py) —
