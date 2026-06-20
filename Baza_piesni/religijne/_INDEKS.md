@@ -1,8 +1,8 @@
-# Baza pieśni — indeks
+# Kolekcja „religijne” — indeks
 
 Łącznie pieśni: **104**  ·  z chwytami: **104**  ·  do uzupełnienia: **0**.
 
-> `Baza_piesni/*.md` to źródło prawdy. Edytuj pliki wprost; potem `python3 zrodla/pdf_full.py` i `python3 zrodla/pdf.py`.
+> `Baza_piesni/` to źródło prawdy. Edytuj pliki wprost; potem `python3 zrodla/pdf_full.py` i `python3 zrodla/site.py`.
 
 | Pieśń | Plik |
 |---|---|
@@ -97,8 +97,8 @@
 | Tyś jest Bóg, wywyższamy Cię | [tys-jest-bog-wywyzszamy-cie.md](tys-jest-bog-wywyzszamy-cie.md) |
 | Ukaż mi, Panie, swą twarz | [ukaz-mi-panie-swa-twarz.md](ukaz-mi-panie-swa-twarz.md) |
 | Ukojenie | [ukojenie.md](ukojenie.md) |
-| Uwielbiam imię Twoje, Panie | [uwielbiam-imie-twoje-panie.md](uwielbiam-imie-twoje-panie.md) |
 | Umiłowany | [umilowany.md](umilowany.md) |
+| Uwielbiam imię Twoje, Panie | [uwielbiam-imie-twoje-panie.md](uwielbiam-imie-twoje-panie.md) |
 | W cieniu Twoich rąk | [w-cieniu-twoich-rak.md](w-cieniu-twoich-rak.md) |
 | W lekkim powiewie | [w-lekkim-powiewie.md](w-lekkim-powiewie.md) |
 | W Tobie jest światło | [w-tobie-jest-swiatlo.md](w-tobie-jest-swiatlo.md) |

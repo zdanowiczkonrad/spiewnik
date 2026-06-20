@@ -1,0 +1,107 @@
+/* Śpiewnik — strona. Czarno-biały, mobile-first, spójny z PDF (Playfair + Instrument Sans + Cousine). */
+:root{
+  --ink:#111; --gry:#777; --lgy:#aaa; --hair:#e6e6e6; --bg:#fff; --chord:#555;
+  --song-size:16px; --maxw:720px;
+}
+@font-face{font-family:Playfair;src:url('fonts/PlayfairDisplay-Bold.ttf');font-weight:700;font-display:swap}
+@font-face{font-family:Instrument;src:url('fonts/InstrumentSans-Regular.ttf');font-weight:400;font-display:swap}
+@font-face{font-family:Instrument;src:url('fonts/InstrumentSans-SemiBold.ttf');font-weight:600;font-display:swap}
+@font-face{font-family:Cousine;src:url('fonts/Cousine-Regular.ttf');font-weight:400;font-display:swap}
+@font-face{font-family:Cousine;src:url('fonts/Cousine-Bold.ttf');font-weight:700;font-display:swap}
+
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;font-family:Instrument,system-ui,-apple-system,sans-serif;color:var(--ink);background:var(--bg);
+     line-height:1.4}
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 16px}
+
+/* ---------- nagłówek + wyszukiwarka ---------- */
+header.top{position:sticky;top:0;background:var(--bg);z-index:5;
+  padding:14px 0 8px;border-bottom:1px solid var(--hair)}
+header.top h1{font-family:Playfair,serif;font-weight:700;font-size:26px;margin:0 0 10px;letter-spacing:.01em}
+.searchbar{display:flex;gap:8px}
+#q{flex:1;min-width:0;font:inherit;font-size:17px;padding:12px 14px;border:1.5px solid var(--ink);
+   border-radius:12px;background:var(--bg);color:var(--ink)}
+#q:focus{outline:none;box-shadow:0 0 0 3px rgba(0,0,0,.08)}
+.filters{display:flex;gap:6px;overflow-x:auto;padding:10px 0 2px;-webkit-overflow-scrolling:touch}
+.filters::-webkit-scrollbar{display:none}
+.chip{flex:0 0 auto;font:inherit;font-size:13px;padding:6px 12px;border:1px solid var(--hair);
+  border-radius:999px;background:var(--bg);color:var(--gry);cursor:pointer;white-space:nowrap}
+.chip[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+
+/* ---------- lista pieśni ---------- */
+.list{padding:6px 0 24px}
+.item{display:flex;align-items:baseline;gap:12px;width:100%;text-align:left;
+  padding:13px 4px;border:0;border-bottom:1px solid var(--hair);background:none;cursor:pointer;font:inherit}
+.item:active{background:#f5f5f5}
+.num{flex:0 0 auto;min-width:26px;font-size:12px;color:var(--lgy);font-variant-numeric:tabular-nums;
+  padding-top:2px}
+.item .t{flex:1;font-size:17px;color:var(--ink)}
+.item .s{display:block;font-size:12px;color:var(--gry);text-transform:uppercase;letter-spacing:.04em;margin-top:2px}
+.empty{padding:40px 4px;color:var(--gry);text-align:center}
+
+/* ---------- pobieranie ---------- */
+.downloads{border-top:1px solid var(--hair);padding:18px 0 40px}
+.downloads h2{font-family:Playfair,serif;font-size:16px;margin:0 0 10px}
+.downloads a{display:block;padding:9px 0;color:var(--ink);text-decoration:none;font-size:14px;border-bottom:1px solid var(--hair)}
+.downloads a::before{content:"↓  ";color:var(--lgy)}
+
+/* ---------- widok pieśni ---------- */
+.songview{position:fixed;inset:0;background:var(--bg);z-index:10;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.songbar{position:sticky;top:0;background:var(--bg);border-bottom:1px solid var(--hair);
+  display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 12px}
+.iconbtn{font:inherit;font-size:15px;padding:8px 12px;border:1px solid var(--hair);border-radius:10px;
+  background:var(--bg);color:var(--ink);cursor:pointer}
+.iconbtn:active{background:#f0f0f0}
+.songtools{display:flex;gap:6px;align-items:center}
+#toggleChords[aria-pressed="false"]{color:var(--gry)}
+.song{max-width:var(--maxw);margin:0 auto;padding:18px 16px 80px}
+.song .num{display:inline-block;background:var(--ink);color:#fff;font-size:12px;
+  padding:2px 7px;border-radius:6px;min-width:0;margin-bottom:8px}
+.song h2{font-family:Playfair,serif;font-weight:700;font-size:25px;line-height:1.15;margin:0 0 4px}
+.song .meta{font-size:12px;color:var(--gry);text-transform:uppercase;letter-spacing:.05em;
+  border-bottom:1.5px solid var(--ink);padding-bottom:10px;margin-bottom:14px}
+.body{font-family:Cousine,ui-monospace,monospace;font-size:var(--song-size);line-height:1.5}
+.ln{white-space:pre-wrap;overflow-wrap:anywhere}
+.ln.blank{height:.6em}
+.ch{color:var(--chord);font-weight:700}
+.body.lyrics-only .ch{display:none}
+.body.lyrics-only .ln.chordline{display:none}
+
+.sitever{padding:24px 0 40px}
+.sitever .wrap{color:var(--lgy);font-size:12px;text-align:center}
+
+/* ---------- nagłówek: wiersz z przyciskiem Akordy ---------- */
+.toprow{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.navbtn{font:inherit;font-size:14px;padding:7px 14px;border:1.5px solid var(--ink);border-radius:999px;
+  background:var(--bg);color:var(--ink);cursor:pointer;white-space:nowrap}
+.navbtn:active{background:#f0f0f0}
+
+/* ---------- indeks akordów (widok) ---------- */
+.chordsbody{max-width:var(--maxw);margin:0 auto;padding:18px 16px 80px}
+.chordsbody h2{font-family:Playfair,serif;font-weight:700;font-size:25px;margin:0 0 4px}
+.cdnote{color:var(--gry);font-size:13px;margin:0 0 18px}
+.cdgrp{font-family:Playfair,serif;font-weight:700;font-size:18px;margin:22px 0 8px;
+  border-bottom:1px solid var(--hair);padding-bottom:6px}
+.cdrow{display:grid;grid-template-columns:repeat(auto-fill,minmax(70px,1fr));gap:14px 8px}
+.cdcell{margin:0;text-align:center}
+.cdcell figcaption{font-family:Cousine,monospace;font-size:12px;margin-top:2px}
+.cdrole{display:block;color:var(--lgy);font-size:10px;font-family:Instrument,sans-serif}
+svg.cd{width:100%;height:auto;max-width:64px}
+svg.cd line{stroke:var(--gry);stroke-width:1}
+svg.cd .cddot{fill:var(--ink)}
+svg.cd .cdo{fill:none;stroke:var(--gry);stroke-width:1}
+svg.cd .cdx{fill:var(--gry);font-size:7px;text-anchor:middle;font-family:Instrument,sans-serif}
+svg.cd .cdfr{fill:var(--gry);font-size:7px;font-family:Instrument,sans-serif}
+
+/* ---------- popover diagramu (hover/tap na chwyt) ---------- */
+.body .ch{cursor:help}
+.chordpop{position:fixed;z-index:50;pointer-events:none;background:var(--bg);border:1px solid var(--ink);
+  border-radius:8px;padding:6px 8px 4px;box-shadow:0 4px 16px rgba(0,0,0,.18);text-align:center}
+.chordpop svg.cd{width:60px;height:auto}
+.chordpop-name{font-family:Cousine,monospace;font-weight:700;font-size:13px;margin-bottom:1px}
+
+@media (min-width:600px){
+  header.top h1{font-size:30px}
+  .song h2{font-size:30px}
+}

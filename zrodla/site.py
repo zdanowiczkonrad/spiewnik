@@ -6,8 +6,9 @@ Buduje samodzielny katalog `docs/` z bazy `Baza_piesni/*.md`:
 - style.css, app.js (kopiowane z web/), fonts/ (Cousine/Playfair/Instrument),
 - pdf/ (kopie wygenerowanych śpiewników do pobrania).
 Linki są względne — działa pod dowolną ścieżką (np. zdanowicz.dev/spiewnik/)."""
-import os, re, json, glob, html, shutil
+import os, re, sys, json, glob, html, shutil
 from common import ROOT, FONTS, fold, fmt_key, chord_run, is_section_label, BUILD_VERSION, load_all, load_chords
+from books import BOOKS, DEFAULT_BOOK, get_book
 
 WEB  = os.path.join(ROOT, "web")
 DOCS = os.path.join(ROOT, "docs")
@@ -35,8 +36,8 @@ def render_body_html(body):
         out.append('<div class="ln%s">%s</div>' % (" chordline" if chordonly else "", "".join(parts)))
     return "".join(out)
 
-def build_songs():
-    songs = [s for s in load_all() if not s["stub"]]
+def build_songs(book):
+    songs = [s for s in load_all(book["src"], book["recursive"]) if not s["stub"]]
     songs.sort(key=lambda s: fold(s["title"]))
     data = []
     for i, s in enumerate(songs, 1):
@@ -50,17 +51,18 @@ def build_songs():
         })
     return data
 
-def copy_assets():
-    os.makedirs(os.path.join(DOCS, "fonts"), exist_ok=True)
-    os.makedirs(os.path.join(DOCS, "pdf"), exist_ok=True)
+def copy_assets(book):
+    site = book["site_dir"]
+    os.makedirs(os.path.join(site, "fonts"), exist_ok=True)
+    os.makedirs(os.path.join(site, "pdf"), exist_ok=True)
     for f in ("style.css", "app.js"):
-        shutil.copy2(os.path.join(WEB, f), os.path.join(DOCS, f))
+        shutil.copy2(os.path.join(WEB, f), os.path.join(site, f))
     for f in SITE_FONTS:
-        shutil.copy2(os.path.join(FONTS, f), os.path.join(DOCS, "fonts", f))
-    pdfs = sorted(p for p in glob.glob(os.path.join(ROOT, "*.pdf"))
+        shutil.copy2(os.path.join(FONTS, f), os.path.join(site, "fonts", f))
+    pdfs = sorted(p for p in glob.glob(os.path.join(book["pdf_dir"], "*.pdf"))
                   if not os.path.basename(p).startswith("_"))   # pomiń pliki robocze (_podglad…)
     for p in pdfs:
-        shutil.copy2(p, os.path.join(DOCS, "pdf", os.path.basename(p)))
+        shutil.copy2(p, os.path.join(site, "pdf", os.path.basename(p)))
     return [os.path.basename(p) for p in pdfs]
 
 def downloads_html(pdf_names):
@@ -78,12 +80,12 @@ PAGE = """<!doctype html>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#ffffff">
 <meta name="description" content="Śpiewnik z chwytami — wyszukaj pieśń lub wybierz po numerze.">
-<title>Śpiewnik</title>
+<title>__TITLE__</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <header class="top"><div class="wrap">
-  <div class="toprow"><h1>Śpiewnik</h1><button id="openChords" class="navbtn">♪ Akordy</button></div>
+  <div class="toprow"><h1>__TITLE__</h1><button id="openChords" class="navbtn">♪ Akordy</button></div>
   <div class="searchbar"><input id="q" type="search" inputmode="search" enterkeyhint="search"
        placeholder="Szukaj tytułu lub wpisz numer…" autocomplete="off" autocapitalize="none"></div>
   <div class="filters" id="filters"></div>
@@ -118,23 +120,35 @@ __DOWNLOADS__
 </html>
 """
 
-def main():
-    os.makedirs(DOCS, exist_ok=True)
-    songs = build_songs()
-    pdf_names = copy_assets()
+def build_site(name, book):
+    site = book["site_dir"]
+    os.makedirs(site, exist_ok=True)
+    songs = build_songs(book)
+    pdf_names = copy_assets(book)
     ver = ("wersja " + html.escape(BUILD_VERSION)) if BUILD_VERSION else ""
     cdata = load_chords()
     page = (PAGE
+            .replace("__TITLE__", html.escape(book["site_title"]))
             .replace("__DOWNLOADS__", downloads_html(pdf_names))
             .replace("__VERSION__", ver)
             .replace("__CHORDS__", json.dumps(cdata.get("voicings", {}), ensure_ascii=False, separators=(",", ":")))
             .replace("__SHAPES__", json.dumps(cdata.get("chords", {}), ensure_ascii=False, separators=(",", ":")))
             .replace("__DATA__", json.dumps(songs, ensure_ascii=False, separators=(",", ":"))))
-    with open(os.path.join(DOCS, "index.html"), "w", encoding="utf-8") as f:
+    with open(os.path.join(site, "index.html"), "w", encoding="utf-8") as f:
         f.write(page)
     # .nojekyll — żeby GitHub Pages nie przetwarzał katalogu przez Jekyll
-    open(os.path.join(DOCS, ".nojekyll"), "w").close()
-    print("OK: %s | pieśni: %d | PDF do pobrania: %d" % (DOCS, len(songs), len(pdf_names)))
+    open(os.path.join(site, ".nojekyll"), "w").close()
+    print("OK: %s | kolekcja: %s | pieśni: %d | PDF do pobrania: %d" % (site, name, len(songs), len(pdf_names)))
+
+def main():
+    # --collection NAZWA → tylko ta kolekcja; bez flagi → wszystkie zdefiniowane w books.py
+    if "--collection" in sys.argv:
+        i = sys.argv.index("--collection")
+        name = sys.argv[i+1] if i+1 < len(sys.argv) else DEFAULT_BOOK
+        build_site(name, get_book(name))
+    else:
+        for name, book in BOOKS.items():
+            build_site(name, book)
 
 if __name__ == "__main__":
     main()

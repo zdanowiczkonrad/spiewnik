@@ -10,6 +10,15 @@ Markdown, a skrypty Pythona składają z nich gotowe śpiewniki w kilku warianta
 Pieśni poprawia się i dodaje **wprost w plikach `.md`**, a potem regeneruje PDF-y.
 Generatory nigdy nie nadpisują bazy.
 
+Baza dzieli się na **kolekcje** (typy śpiewnika) — każda to osobny katalog w `Baza_piesni/`:
+
+- `Baza_piesni/religijne/` — pieśni religijne (kolekcja domyślna, pełna baza),
+- `Baza_piesni/18-nadia/` — śpiewnik na 18. urodziny (z podkatalogami `polskie/` i `zagraniczne/`).
+
+Konfiguracja kolekcji (źródło, okładka, nazwy plików, miejsce publikacji) mieszka w
+[`zrodla/books.py`](zrodla/books.py) — **dodanie nowego śpiewnika = jeden wpis w `BOOKS`**, bez
+duplikowania logiki układu. Kolekcję wybiera się flagą `--collection NAZWA` (domyślnie `religijne`).
+
 ### Format pliku pieśni
 
 ```markdown
@@ -59,8 +68,22 @@ python3 pdf.py             # śpiewnik wyjazdowy + porządek nabożeństw
 | `zrodla/pdf_plain.py` | `Baza_piesni/*.md`, `plan_data.py`, fonty | `Śpiewnik wyjazd … (bez chwytów).pdf` |
 | `zrodla/pdf_lud.py` | `Baza_piesni/*.md`, `plan_data.py`, fonty | `Śpiewnik dla ludu – Boże Ciało 2026.pdf` (2 kolumny, kompaktowy) |
 
-Flagi `pdf_full.py`: `--a5` (format kieszonkowy A5), `--plain` (same teksty, bez chwytów).
-Cztery warianty pełnego śpiewnika powstają z kombinacji tych flag.
+Flagi `pdf_full.py`: `--a5` (format kieszonkowy A5), `--plain` (same teksty, bez chwytów),
+`--collection NAZWA` (kolekcja z `books.py`; domyślnie `religijne`). Cztery warianty pełnego
+śpiewnika powstają z kombinacji `--a5`/`--plain`.
+
+Przykład — śpiewnik na 18. urodziny (z chwytami i bez), plus strona web pod `docs/18-nadia/`:
+
+```bash
+cd zrodla
+python3 generuj.py                            # odśwież indeksy kolekcji
+python3 pdf_full.py --collection 18-nadia     # PDF z chwytami → 18-nadia/
+python3 pdf_full.py --collection 18-nadia --plain   # PDF bez chwytów
+python3 site.py                               # zbuduj wszystkie strony (docs/ + docs/18-nadia/)
+```
+
+`site.py` bez argumentów buduje stronę dla **każdej** kolekcji (główna → `docs/`, pozostałe →
+`docs/<nazwa>/`); `--collection NAZWA` ogranicza build do jednej kolekcji.
 
 Wspólna logika wszystkich generatorów (parsowanie bazy, rozpoznawanie/usuwanie chwytów,
 tonacja, fonty, bazowa klasa PDF, ścieżki) mieszka w [`zrodla/common.py`](zrodla/common.py) —

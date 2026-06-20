@@ -1,14 +1,20 @@
 # -*- coding: utf-8 -*-
-# Pełny śpiewnik (wszystkie pieśni z bazy). Flagi: --a5 (kieszonkowy), --plain (same teksty, bez chwytów).
+# Pełny śpiewnik dowolnej kolekcji. Flagi: --a5 (kieszonkowy), --plain (same teksty, bez chwytów),
+# --collection NAZWA (domyślnie „religijne"; patrz zrodla/books.py).
 import os, re, sys
 from fpdf.enums import XPos, YPos
 from common import (INK, GRY, LGY, HAIR, CHORDCOL, fold, fmt_key, chord_run,
-                    strip_chords, load_all, add_fonts, SongbookPDF, ROOT, BUILD_VERSION,
+                    strip_chords, load_all, add_fonts, SongbookPDF, BUILD_VERSION,
                     draw_site_qr, draw_chord_index)
-from plan_data import EVENT
+from books import get_book, DEFAULT_BOOK
 
-# ---------- wczytanie bazy z plików MD ----------
-songs=load_all()
+# ---------- wybór kolekcji (--collection NAZWA) ----------
+def _arg(flag, default):
+    return sys.argv[sys.argv.index(flag)+1] if flag in sys.argv and sys.argv.index(flag)+1<len(sys.argv) else default
+BOOK = get_book(_arg("--collection", DEFAULT_BOOK))
+
+# ---------- wczytanie kolekcji z plików MD ----------
+songs=load_all(BOOK["src"], BOOK["recursive"])
 content=sorted([s for s in songs if not s["stub"]], key=lambda s: fold(s["title"]))
 stubs  =sorted([s for s in songs if s["stub"]],     key=lambda s: fold(s["title"]))
 for i,s in enumerate(content,1): s["nr"]=i
@@ -16,7 +22,7 @@ N=len(content)
 
 # ---------- PDF ----------
 class PDF(SongbookPDF):
-    left_label="ŚPIEWNIK · BAZA PIEŚNI"; right_label=EVENT["header"]
+    left_label="ŚPIEWNIK · BAZA PIEŚNI"; right_label=BOOK["header"]
 
 A5 = "--a5" in sys.argv
 PLAIN = "--plain" in sys.argv          # bez chwytów (same teksty, font bezszeryfowy)
@@ -53,28 +59,29 @@ def cover(pdf):
     pdf.rect(8,8, W-16, H-16)              # cienka ramka
     pdf.set_y(48 if A5 else 70)
     pdf.set_font("sans","",8 if A5 else 10); pdf.set_text_color(*GRY); pdf.set_char_spacing(3 if A5 else 4)
-    pdf.cell(0,6,("ŚPIEWNIK RELIGIJNY — TEKSTY" if PLAIN else "ŚPIEWNIK RELIGIJNY NA GITARĘ"),
+    pdf.cell(0,6,(BOOK["kicker_plain"] if PLAIN else BOOK["kicker_chords"]),
              align="C",new_x=XPos.LMARGIN,new_y=YPos.NEXT)
     pdf.set_char_spacing(0)
     pdf.ln(4 if A5 else 6)
     pdf.set_font("play","B",40 if A5 else 64); pdf.set_text_color(*INK)
-    pdf.cell(0,(20 if A5 else 30),"Śpiewnik",align="C",new_x=XPos.LMARGIN,new_y=YPos.NEXT)
+    pdf.cell(0,(20 if A5 else 30),BOOK["cover_title"],align="C",new_x=XPos.LMARGIN,new_y=YPos.NEXT)
     pdf.ln(3 if A5 else 4)
     cx=W/2; hw=16 if A5 else 22
     pdf.set_draw_color(*INK); pdf.set_line_width(0.3); pdf.line(cx-hw,pdf.get_y(),cx+hw,pdf.get_y())
     pdf.ln(8 if A5 else 11)
     pdf.set_font("sans","",10 if A5 else 11); pdf.set_text_color(*GRY)
-    pdf.cell(0,7,EVENT["short"],align="C",new_x=XPos.LMARGIN,new_y=YPos.NEXT)
-    draw_site_qr(pdf, W/2, (116 if A5 else 168), (22 if A5 else 30))   # QR do żywej strony
+    pdf.cell(0,7,BOOK["subtitle"],align="C",new_x=XPos.LMARGIN,new_y=YPos.NEXT)
+    if BOOK["qr"]:
+        draw_site_qr(pdf, W/2, (116 if A5 else 168), (22 if A5 else 30))   # QR do żywej strony
     # stopka okładki
     pdf.set_y(H-(28 if A5 else 40))
     pdf.set_font("sans","",7 if A5 else 8.5); pdf.set_text_color(*GRY); pdf.set_char_spacing(1.4 if A5 else 2)
     pdf.cell(0,5,(f"{N} PIEŚNI" if PLAIN else
                   (f"{N} PIEŚNI · NOTACJA POLSKA" if A5 else
-                   f"{N} PIEŚNI · NOTACJA POLSKA (h = H-moll, małe litery = molowe)")),
+                   f"{N} PIEŚNI · {BOOK['notation_note']}")),
              align="C",new_x=XPos.LMARGIN,new_y=YPos.NEXT)
     pdf.set_char_spacing(0)
-    pdf.cell(0,5,"Źródła różne, zebranie i opracowanie: Konrad Zdanowicz 2026",align="C",
+    pdf.cell(0,5,BOOK["credit"],align="C",
              new_x=XPos.LMARGIN,new_y=YPos.NEXT)
     if BUILD_VERSION:
         pdf.ln(2); pdf.set_font("sans","",6.5 if A5 else 7); pdf.set_text_color(*LGY); pdf.set_char_spacing(1)
@@ -228,13 +235,14 @@ cover(pdf)
 draw_toc(pdf, starts, ntoc)
 starts2=render_songs(pdf)
 assert starts==starts2, ("rozjazd paginacji", starts, starts2)
-if not PLAIN:
+if not PLAIN and BOOK["chord_index"]:
     pdf.chrome=True; pdf.add_page()
     draw_chord_index(pdf, ML, W, H)     # załącznik „Indeks akordów" — tylko wersja z chwytami
     add_note_pages(pdf, 8)              # 8 stron na notatki (linie)
 
-base = "Śpiewnik pełny – teksty" if PLAIN else "Śpiewnik pełny – chwyty"
-out=os.path.join(ROOT, base + (" (A5)" if A5 else "") + ".pdf")
+base = BOOK["base_plain"] if PLAIN else BOOK["base_chords"]
+os.makedirs(BOOK["pdf_dir"], exist_ok=True)
+out=os.path.join(BOOK["pdf_dir"], base + (" (A5)" if A5 else "") + ".pdf")
 pdf.output(out)
 print("OK:",out,"| stron:",pdf.page_no(),"| pieśni:",N,"| stuby:",len(stubs),"| spis stron:",ntoc,"| plain:",PLAIN)
 

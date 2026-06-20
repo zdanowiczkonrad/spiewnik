@@ -1,5 +1,10 @@
 # Rzeczy do dodania
 
+# Key features
+- Czytanie na dzis (kalendarz) + generator oprawy na podstawie czytan
+- PWA, generator do druku PDF/obstawa piesni
+- Konfigurator obstawy w apce (wybor piesni na poszczegolne czesci mszy)
+
 ## Baza pieśni
 - Edytor pieśni webowy za hasłem (P1)
 - ✅ Unifikacja notacji chwytów (P0) — `canon_chord()` w common.py; baza ujednolicona do notacji polskiej (Am→a, C#m7→cis7, C#7→Cis7); `zrodla/unify_notation.py`
@@ -20,7 +25,7 @@
 - lista historyczna doboru pieśni (P0)
 - Oprawa Mszy - opcja podglądu pieśni + wejścia rozwinięcia pieśni (P0)
 - ✅ Przełącznik notacji chwytow — toggle PL↔US w app.js (H↔B), domyślnie polska; `to_american()` + port JS
-* Transpozycja wbudowana
+* Transpozycja 
 * schematy akordow po hover — jest pełny WIDOK indeksu akordów (przycisk „Akordy"); hover-na-akord-w-pieśni wymaga biblioteki pojedynczych kształtów (osobne dane)
 
 ## Poprawki w pieśniach

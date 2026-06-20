@@ -1,11 +1,18 @@
 # -*- coding: utf-8 -*-
-"""Testy integralności bazy Baza_piesni/*.md (źródło prawdy) i listy SELECTED."""
+"""Testy integralności bazy Baza_piesni (źródło prawdy) i listy SELECTED.
+Baza dzieli się na kolekcje (książki) — patrz zrodla/books.py — każda we własnym katalogu
+(płaskim albo z podkatalogami, np. „18-nadia": polskie/zagraniczne)."""
 import glob, os
 import common
+from books import BOOKS
 from plan_data import SELECTED
 
-MD = [p for p in glob.glob(os.path.join(common.DB, "*.md"))
-      if not os.path.basename(p).startswith("_")]
+
+def _files(book):
+    return common._md_files(book["src"], book["recursive"])
+
+# wszystkie pliki ze wszystkich kolekcji
+MD = [p for book in BOOKS.values() for p in _files(book)]
 
 
 def test_baza_niepusta():
@@ -39,8 +46,20 @@ def test_selected_unikalne():
 
 
 def test_selected_obecne_w_bazie_i_nie_stuby():
-    by_title = common.load_by_title()
+    by_title = common.load_by_title()   # domyślnie kolekcja religijna (common.REL)
     brakuje = [t for t in SELECTED if t not in by_title]
     assert not brakuje, "tytuły z SELECTED nieobecne w bazie: " + ", ".join(brakuje)
     stuby = [t for t in SELECTED if by_title[t]["stub"]]
     assert not stuby, "tytuły z SELECTED będące stubami: " + ", ".join(stuby)
+
+
+def test_kazda_kolekcja_niepusta():
+    for name, book in BOOKS.items():
+        assert _files(book), f"pusta kolekcja: {name}"
+
+
+def test_tytuly_unikalne_w_kolekcji():
+    for name, book in BOOKS.items():
+        titles = [common.parse_md(p)["title"] for p in _files(book)]
+        dup = {t for t in titles if titles.count(t) > 1}
+        assert not dup, f"zdublowane tytuły w kolekcji {name}: " + ", ".join(dup)

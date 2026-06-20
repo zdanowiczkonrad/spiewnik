@@ -12,7 +12,8 @@ from fpdf.enums import XPos, YPos
 # --- ścieżki (wyliczane z położenia pliku — bez zaszytych ścieżek absolutnych) ---
 ROOT   = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SRC    = os.path.join(ROOT, "zrodla")
-DB     = os.path.join(ROOT, "Baza_piesni")
+DB     = os.path.join(ROOT, "Baza_piesni")        # korzeń bazy (katalog z kolekcjami)
+REL    = os.path.join(DB, "religijne")            # główna kolekcja: pieśni religijne (domyślne źródło)
 FONTS  = os.path.join(SRC, "fonts")
 ASSETS = os.path.join(SRC, "assets")
 
@@ -195,16 +196,21 @@ def parse_md(path):
     return {"title":title,"section":field("Przeznaczenie"),"key":field("Tonacja"),
             "source":field("Źródło"),"body":body,"stub":("⚠️" in txt and not body)}
 
-def load_by_title(db=DB):
+def _md_files(db, recursive=False):
+    """Pliki .md kolekcji (z pominięciem _*.md). recursive=True → także podkatalogi
+    (np. kolekcja „18-nadia" z podziałem na polskie/zagraniczne)."""
+    pat = os.path.join(db, "**", "*.md") if recursive else os.path.join(db, "*.md")
+    files = glob.glob(pat, recursive=recursive)
+    return sorted(p for p in files if not os.path.basename(p).startswith("_"))
+
+def load_by_title(db=REL, recursive=False):
     out={}
-    for p in sorted(glob.glob(os.path.join(db,"*.md"))):
-        if os.path.basename(p).startswith("_"): continue
+    for p in _md_files(db, recursive):
         s=parse_md(p); out[s["title"]]=s
     return out
 
-def load_all(db=DB):
-    return [parse_md(p) for p in sorted(glob.glob(os.path.join(db,"*.md")))
-            if not os.path.basename(p).startswith("_")]
+def load_all(db=REL, recursive=False):
+    return [parse_md(p) for p in _md_files(db, recursive)]
 
 # --- wersja buildu (auto-stempel z gita: data + krótki hash ostatniego commita) ---
 def build_version():

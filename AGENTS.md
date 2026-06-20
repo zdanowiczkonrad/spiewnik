@@ -17,8 +17,17 @@ nie widać wprost z kodu.
 
 ## Reguły bazy
 
-- **`Baza_piesni/*.md` to jedyne źródło prawdy.** Pieśni dodaje się i poprawia WPROST w plikach
+- **`Baza_piesni/**/*.md` to jedyne źródło prawdy.** Pieśni dodaje się i poprawia WPROST w plikach
   `.md`. Generatory tylko je czytają.
+- **Kolekcje (typy śpiewnika).** Baza dzieli się na katalogi-kolekcje (`religijne/`, `18-nadia/`…),
+  skonfigurowane w `zrodla/books.py` (`BOOKS`). `load_all`/`load_by_title` przyjmują `(db, recursive)`
+  i domyślnie czytają `common.REL` (= `Baza_piesni/religijne`), więc religijne generatory (`pdf.py`,
+  `pdf_plain.py`, `pdf_lud.py`) działają bez argumentów. `pdf_full.py` i `site.py` biorą kolekcję
+  z `books.py` (`--collection NAZWA`). Kolekcja może mieć podkatalogi (`18-nadia/polskie`,
+  `…/zagraniczne`) — wtedy `recursive=True`. Nowy śpiewnik = wpis w `BOOKS`, nie nowy generator.
+- **Pułapka H/B przy imporcie tabów pop.** Samotne `B` w zapisie międzynarodowym = H (B-dur);
+  `canon_chord` traktuje samotne `B` jak Bb (polskie B), więc po `unify_notation.py` ręcznie zamień
+  takie `B`→`H` (zob. `szampan-sanah.md`). `Bb`→`B`, `Em`→`e`, `C#m`→`cis`, `F#m`→`fis` idą automatem.
 - **`generuj.py` niczego nie tworzy ani nie nadpisuje** — skanuje bazę i odświeża `_INDEKS.md`.
   Uruchamiaj po ręcznych zmianach w bazie, przed generowaniem PDF.
 - **Nazwa pliku = slug tytułu.** Dla nowej pieśni nazwij plik zgodnie z tytułem z nagłówka `#`,

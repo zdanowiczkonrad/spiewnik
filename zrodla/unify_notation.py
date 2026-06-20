@@ -24,7 +24,7 @@ def unify_body(body):
 
 def main(apply=False):
     total = 0
-    for p in sorted(glob.glob(os.path.join(DB, "*.md"))):
+    for p in sorted(glob.glob(os.path.join(DB, "**", "*.md"), recursive=True)):   # wszystkie kolekcje, też podkatalogi
         if os.path.basename(p).startswith("_"): continue
         txt = open(p, encoding="utf-8").read()
         m = FENCE.search(txt)

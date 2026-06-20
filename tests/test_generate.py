@@ -14,6 +14,11 @@ CASES = [
     (["pdf_full.py", "--a5"],    "Śpiewnik pełny – chwyty (A5).pdf"),
     (["pdf_full.py", "--plain"], "Śpiewnik pełny – teksty.pdf"),
     (["pdf_full.py", "--a5", "--plain"], "Śpiewnik pełny – teksty (A5).pdf"),
+    # kolekcja „18-nadia" (świecka, podkatalogi polskie/zagraniczne) — PDF-y trafiają do 18-nadia/
+    (["pdf_full.py", "--collection", "18-nadia"],
+     os.path.join("18-nadia", "Śpiewnik Nadia – chwyty.pdf")),
+    (["pdf_full.py", "--collection", "18-nadia", "--plain"],
+     os.path.join("18-nadia", "Śpiewnik Nadia – teksty.pdf")),
 ]
 
 
